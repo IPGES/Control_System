@@ -106,18 +106,13 @@ static void PWMTask(void *pvParameters)
 
 //*****************************************************************************
 //
-// Initializes the LED task.
+// Initializes the PWM task to output a PWM to PB6 and it's complement to PB7.
 //
 //*****************************************************************************
 uint32_t PWMTaskInit(void)
 {
-	
-    // Create a queue for sending messages to the LED task.
-    //g_pLEDQueue = xQueueCreate(ADC_QUEUE_SIZE, ADC_ITEM_SIZE);
-
-	
     SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+		SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     GPIOPinConfigure(GPIO_PB6_M0PWM0);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_6);
@@ -125,13 +120,13 @@ uint32_t PWMTaskInit(void)
     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 2500);
 		PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500* 50/100);
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT, true);
-    PWMOutputInvert(PWM0_BASE, PWM_OUT_0_BIT, false);
-    //GPIO_PORTB_DR8R_R |=0xC0;
+    PWMOutputInvert(PWM0_BASE, PWM_OUT_0_BIT, false);	//AC Chopper takes a PWM signal and it's complement.
+    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
  
 	
-	SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+		SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
+		SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     GPIOPinConfigure(GPIO_PB7_M0PWM1);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
@@ -141,7 +136,7 @@ uint32_t PWMTaskInit(void)
     PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT, true);
     //PWMOutputInvert(PWM0_BASE, PWM_OUT_1_BIT, true);
     PWMDeadBandEnable(PWM0_BASE, PWM_GEN_0, 0xF, 0xF);
-    //GPIO_PORTB_DR8R_R |=0xC0;
+    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
 		
 	
