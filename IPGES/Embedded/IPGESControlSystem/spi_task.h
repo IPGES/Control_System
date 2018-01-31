@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// priorities.h - Priorities for the various FreeRTOS tasks.
+// led_task.h - Prototypes for the LED task.
 //
 // Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
@@ -22,20 +22,14 @@
 //
 //*****************************************************************************
 
-#ifndef __PRIORITIES_H__
-#define __PRIORITIES_H__
+#ifndef __SPI_TASK_H__
+#define __SPI_TASK_H__
 
 //*****************************************************************************
 //
-// The priorities of the various tasks.
+// Prototypes for the LED task.
 //
 //*****************************************************************************
-#define PRIORITY_SPI_TASK       6
-#define PRIORITY_PWM_TASK       6
-#define PRIORITY_ADC_TASK       6
-#define PRIORITY_SWITCH_TASK    5
-#define PRIORITY_LED_TASK       4
-#define PRIORITY_INTERPRETER_TASK       6
+uint32_t SPITaskInit(void);
 
-
-#endif // __PRIORITIES_H__
+#endif // __SPI_TASK_H__

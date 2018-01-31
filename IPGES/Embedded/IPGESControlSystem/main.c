@@ -39,6 +39,7 @@
 #include "adc_task.h"
 #include "pwm_task.h"
 #include "interpreter.h"
+#include "spi_task.h"
 
 //*****************************************************************************
 //
@@ -182,13 +183,17 @@ int main(void)
 				}
     }
 
-			
     if(PWMTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
     } 
-
+		
+		if(SPITaskInit() != 0) {
+        while(1) {
+					UARTprintf("Error, SPITaskInit Failed.\n");
+        }
+    } 
 		
 		if(InterpreterTaskInit() != 0) {
         while(1) {

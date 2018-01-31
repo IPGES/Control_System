@@ -67,6 +67,7 @@
 //*****************************************************************************
 xQueueHandle g_pInterpreterQueue;
 
+extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 //
 // This task toggles the user selected LED at a user selected frequency. User
@@ -76,13 +77,17 @@ xQueueHandle g_pInterpreterQueue;
 
 static void InterpreterTask(void *pvParameters)
 {
+		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
+		xSemaphoreGive(g_pUARTSemaphore);
     char uartInput[INPUTLENGTH];
 		int dutyCycle;
 	
     while(1)
     {  
+			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 			UARTprintf("$");
+			xSemaphoreGive(g_pUARTSemaphore);
 			UARTgets(uartInput, INPUTLENGTH); //note this is blocking, use peek to do non-blocking
 			switch(uartInput[0]) {
 				case 'A':
@@ -93,11 +98,15 @@ static void InterpreterTask(void *pvParameters)
 					if(0 <= dutyCycle && dutyCycle <= 99) {
 						PWM_dutyCycleChange(dutyCycle);
 					} else {
+						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 						UARTprintf("Duty cycle between 0-99 inclusive.\n");
+						xSemaphoreGive(g_pUARTSemaphore);
 					}
 					break;
 				default :
+					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 					UARTprintf("Command not found\n");
+					xSemaphoreGive(g_pUARTSemaphore);
 			}
     }
 }
@@ -109,8 +118,6 @@ static void InterpreterTask(void *pvParameters)
 //*****************************************************************************
 uint32_t InterpreterTaskInit(void)
 {
-    // Print the current loggling LED and frequency.
-    //UARTprintf("PWM Init\n");
 	
     // Create a queue for sending messages to the LED task.
     //g_pLEDQueue = xQueueCreate(ADC_QUEUE_SIZE, ADC_ITEM_SIZE);
