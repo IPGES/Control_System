@@ -15,6 +15,7 @@
 ".\rvmdk\adc_task.o"
 ".\rvmdk\pwm_task.o"
 ".\rvmdk\interpreter.o"
+".\rvmdk\spi_task.o"
 "..\driverlib\rvmdk\driverlib.lib"
 --library_type=microlib --strict --scatter "freertos_demo.sct"
 

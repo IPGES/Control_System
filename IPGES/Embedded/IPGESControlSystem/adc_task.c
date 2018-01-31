@@ -91,6 +91,10 @@ AdcData_t adcRawInput;
 
 static void ADCTask(void *pvParameters)
 {
+		// Print the current loggling LED and frequency.
+		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    UARTprintf("ADC Init\n");
+		xSemaphoreGive(g_pUARTSemaphore);
     portTickType ui32WakeTime;
 
     // Get the current tick count.
@@ -133,8 +137,6 @@ void ADC_Print(void) {
 //*****************************************************************************
 uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
 {
-    // Print the current loggling LED and frequency.
-    UARTprintf("ADC Init\n");
 
 		ProducerTask = pTask;
 	
@@ -164,8 +166,6 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()); //only time A should be set for full width operation, SysCltClockGet returns count for 1 second
 		TimerIntDisable(TIMER2_BASE, 0xFFFFFFFF ); //disable all interrupts for this timer
     TimerEnable(TIMER2_BASE, TIMER_A);
-    
-    
 		
     ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_RATE_EIGHTH , 1); //last param is divider
     ADCSequenceDisable(ADC0_BASE, ADC_SEQUENCE2); 

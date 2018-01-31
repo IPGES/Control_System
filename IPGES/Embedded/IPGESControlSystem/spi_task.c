@@ -28,20 +28,18 @@
 #include "inc/hw_types.h"
 #include "driverlib/rom.h"
 #include "utils/uartstdio.h"
-#include "pwm_task.h"
+#include "spi_task.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
-#include "pwm.h" //for pwm lib
-#include "hw_memmap.h" //for address bases
-#include "sysctl.h" //for init ports
-#include "gpio.h" //for gpio to be interfaced to adc
-#include "interrupt.h" //for interrupt
-#include "hw_ints.h" //for INT_TIMER2A
-#include "pin_map.h" //for GPIO_PB6_M0PWM0
+#include "driverlib/gpio.h"
+#include "driverlib/ssi.h"
+#include "driverlib/pin_map.h"
+#include "inc/hw_memmap.h"
+#include "driverlib/sysctl.h"
 
 
 #define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508))
@@ -50,31 +48,29 @@
 // The stack size for the task.
 //
 //*****************************************************************************
-#define PWMTASKSTACKSIZE        128         // Stack size in words
-
-//*****************************************************************************
-//
-// ADC Init Macros
-//
-//*****************************************************************************
-#define ADC_SEQUENCE2           2
-#define ADC_SEQUENCE2_PRIORITY  2
+#define SPITASKSTACKSIZE        128         // Stack size in words
 
 //*****************************************************************************
 //
 // The item size and queue size for the message queue.
 //
 //*****************************************************************************
-#define PWM_ITEM_SIZE           sizeof(uint8_t)
-#define PWM_QUEUE_SIZE          5
+#define SPI_ITEM_SIZE           sizeof(uint8_t)
+#define SPI_QUEUE_SIZE          5
 
 //*****************************************************************************
 //
 // The queue that holds messages sent to the LED task.
 //
 //*****************************************************************************
-xQueueHandle g_pPwmQueue;
+xQueueHandle g_pSpiQueue;
 
+//*****************************************************************************
+//
+// Number of bytes to send and receive.
+//
+//*****************************************************************************
+#define NUM_SSI_DATA            3
 
 
 extern xSemaphoreHandle g_pUARTSemaphore;
@@ -85,25 +81,62 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 //
 //*****************************************************************************
 
-static void PWMTask(void *pvParameters)
+static void SPITask(void *pvParameters)
 {
+		uint32_t pui32DataTx[NUM_SSI_DATA];
+    uint32_t pui32DataRx[NUM_SSI_DATA];
+    uint32_t ui32Index;
+	
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("PWM Init\n");
+		UARTprintf("SPI Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
     portTickType ui32WakeTime;
 
+		//
+    // Read any residual data from the SSI port.  This makes sure the receive
+    // FIFOs are empty, so we don't read any unwanted junk.  This is done here
+    // because the SPI SSI mode is full-duplex, which allows you to send and
+    // receive at the same time.  The SSIDataGetNonBlocking function returns
+    // "true" when data was returned, and "false" when no data was returned.
+    // The "non-blocking" function checks if there is any data in the receive
+    // FIFO and does not "hang" if there isn't.
+    //
+		while(SSIDataGetNonBlocking(SSI0_BASE, &pui32DataRx[0]))
+    {
+    }
+	
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
     //char uartInput[20]; 
-
+	
+	  pui32DataTx[0] = 'J';
+    pui32DataTx[1] = 'i';
+    pui32DataTx[2] = 'm';
+		
     // Loop forever.
     while(1)
     {  
+				
+			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+			{
+					//
+					// Display the data that SSI is transferring.
+					//
+					UARTprintf("'%c' ", pui32DataTx[ui32Index]);
+
+					//
+					// Send the data using the "blocking" put function.  This function
+					// will wait until there is room in the send FIFO before returning.
+					// This allows you to assure that all the data you send makes it into
+					// the send FIFO.
+					//
+					SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+			}
         //
         // Wait for the required amount of time.
         //
         vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
-    } //forever loop
+    } //forever loop 
 }
 
 //*****************************************************************************
@@ -111,48 +144,27 @@ static void PWMTask(void *pvParameters)
 // Initializes the PWM task to output a PWM to PB6 and it's complement to PB7.
 //
 //*****************************************************************************
-uint32_t PWMTaskInit(void)
+uint32_t SPITaskInit(void)
 {
-    SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
-		SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-    GPIOPinConfigure(GPIO_PB6_M0PWM0);
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_6);
-    PWMGenConfigure(PWM0_BASE, PWM_GEN_0, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_DB_NO_SYNC);
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 2500);
-		PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500* 50/100);
-    PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT, true);
-    PWMOutputInvert(PWM0_BASE, PWM_OUT_0_BIT, false);	//AC Chopper takes a PWM signal and it's complement.
-    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
-    PWMGenEnable(PWM0_BASE, PWM_GEN_0);
- 
-	
-		SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
-		SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-    GPIOPinConfigure(GPIO_PB7_M0PWM1);
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
-    PWMGenConfigure(PWM0_BASE, PWM_GEN_0, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_DB_NO_SYNC);
-    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 2500);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2500* 50/100);
-    PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT, true);
-    //PWMOutputInvert(PWM0_BASE, PWM_OUT_1_BIT, true);
-    PWMDeadBandEnable(PWM0_BASE, PWM_GEN_0, 0xF, 0xF);
-    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
-    PWMGenEnable(PWM0_BASE, PWM_GEN_0);
+		SysCtlPeripheralEnable(SYSCTL_PERIPH_SSI0);
+		SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 		
+		GPIOPinConfigure(GPIO_PA2_SSI0CLK);
+    GPIOPinConfigure(GPIO_PA3_SSI0FSS);
+    GPIOPinConfigure(GPIO_PA4_SSI0RX);
+    GPIOPinConfigure(GPIO_PA5_SSI0TX);
+		
+		GPIOPinTypeSSI(GPIO_PORTA_BASE, GPIO_PIN_5 | GPIO_PIN_4 | GPIO_PIN_3 |
+								 GPIO_PIN_2);
 	
+		SSIConfigSetExpClk(SSI0_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
+									 SSI_MODE_MASTER, 1000000, 8);
 	
-    /* Used for more intense signals
-    PWMIntEnable(PWM0_BASE, PWM_INT_GEN_0); 
-    IntMasterEnable();
-    PWMGenIntTrigEnable(PWM0_BASE, PWM_GEN_0, PWM_INT_CNT_LOAD);
-    IntEnable(INT_PWM0_0);
-     */
-
+		SSIEnable(SSI0_BASE);
+	
     // Create the task.
-    if(xTaskCreate(PWMTask, (const portCHAR *)"PWM", PWMTASKSTACKSIZE, NULL,
-                   tskIDLE_PRIORITY + PRIORITY_PWM_TASK, NULL) != pdTRUE) 
+    if(xTaskCreate(SPITask, (const portCHAR *)"SPI", SPITASKSTACKSIZE, NULL,
+                   tskIDLE_PRIORITY + PRIORITY_SPI_TASK, NULL) != pdTRUE) 
     {
         return(1);
     }
@@ -160,20 +172,3 @@ uint32_t PWMTaskInit(void)
     return(0);
 }
 
-void PWM_dutyCycleChange(int dutyCycle) {
-	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500* dutyCycle/100);
-	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2500* dutyCycle/100);
-}
-
-/*
-void PWM0IntHandler(void)
-{
-
-    PWMGenIntClear(PWM0_BASE, PWM_GEN_0, PWM_INT_CNT_LOAD);
-    //
-    // Clear the timer interrupt flag.
-    //
-    //PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 64000/2);
-
-}
-*/
