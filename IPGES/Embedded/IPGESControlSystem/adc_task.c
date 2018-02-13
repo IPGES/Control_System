@@ -96,6 +96,7 @@ uint16_t adc_input_index = 0;
 
 static AdcData_t max;
 static AdcData_t min;
+static AdcData_t rms;
 
 xSemaphoreHandle arrayFull;
 
@@ -145,12 +146,17 @@ static void ADCTask(void *pvParameters)
 							min.PE3 = adcRawInput[i].PE3;
 						}
 					}
-					ADC_Print();
+					rms.PE0 = (((max.PE1 - min.PE1) * 100)/141)/100;  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
+					rms.PE1 = (((max.PE1 - min.PE1) * 100)/141)/100; 
+					rms.PE2 = (((max.PE1 - min.PE1) * 100)/141)/100; 
+					rms.PE3 = (((max.PE1 - min.PE1) * 100)/141)/100; 
+					//ADC_Print();
+					ADC_PrintJSON();
 					setAdcData(&min);
 					clearAdcData(&max);
-					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-					UARTprintf("adcCount: %d\n", adcCount);
-					xSemaphoreGive(g_pUARTSemaphore);
+					//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+					//UARTprintf("adcCount: %d\n", adcCount);
+					//xSemaphoreGive(g_pUARTSemaphore);
         }
     } //forever loop
 }
@@ -164,7 +170,7 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 520, 520, 520, 520, 520);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", rms.PE0, rms.PE1, rms.PE2, rms.PE3, 419);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 

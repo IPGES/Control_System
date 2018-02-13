@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\rvmdk\freertos_demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\rvmdk\freertos_demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Tue Feb 13 12:47:22 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Tue Feb 13 13:17:13 2018
 <BR><P>
 <H3>Maximum Stack Usage =        176 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -228,8 +228,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[21]"></a>ADC_Print</STRONG> (Thumb, 72 bytes, Stack size 16 bytes, adc_task.o(i.ADC_Print))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = ADC_Print &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[21]"></a>ADC_PrintJSON</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, adc_task.o(i.ADC_PrintJSON))
+<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = ADC_PrintJSON &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
@@ -413,7 +413,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InterpreterTask
 <LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWMTask
-<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Print
+<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_PrintJSON
 <LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADCTask
 </UL>
 
@@ -680,7 +680,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InterpreterTask
 <LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWMTask
-<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Print
+<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_PrintJSON
 <LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADCTask
 </UL>
 
@@ -712,7 +712,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueCreateMutex
 <LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InterpreterTask
 <LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWMTask
-<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Print
+<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_PrintJSON
 <LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADCTask
 </UL>
 
@@ -901,15 +901,15 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskIncrementTick
 </UL>
 
-<P><STRONG><a name="[9]"></a>ADCTask</STRONG> (Thumb, 224 bytes, Stack size 0 bytes, adc_task.o(i.ADCTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = ADCTask &rArr; ADC_Print &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[9]"></a>ADCTask</STRONG> (Thumb, 214 bytes, Stack size 0 bytes, adc_task.o(i.ADCTask))
+<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = ADCTask &rArr; ADC_PrintJSON &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTprintf
 <LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setAdcData
 <LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;clearAdcData
-<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_Print
+<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_PrintJSON
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> adc_task.o(i.ADCTaskInit)
 </UL>
