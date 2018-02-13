@@ -1,7 +1,6 @@
 --cpu Cortex-M4.fp
 ".\rvmdk\buttons.o"
 ".\rvmdk\main.o"
-".\rvmdk\heap_2.o"
 ".\rvmdk\led_task.o"
 ".\rvmdk\list.o"
 ".\rvmdk\port.o"
@@ -16,6 +15,7 @@
 ".\rvmdk\pwm_task.o"
 ".\rvmdk\interpreter.o"
 ".\rvmdk\spi_task.o"
+".\rvmdk\heap_1.o"
 "..\driverlib\rvmdk\driverlib.lib"
 --library_type=microlib --strict --scatter "freertos_demo.sct"
 

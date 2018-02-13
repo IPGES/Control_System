@@ -189,11 +189,11 @@ int main(void)
         }
     } 
 		
-		if(SPITaskInit() != 0) {
+		/* if(SPITaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, SPITaskInit Failed.\n");
         }
-    } 
+    } */
 		
 		if(InterpreterTaskInit() != 0) {
         while(1) {

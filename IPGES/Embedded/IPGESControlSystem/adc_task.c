@@ -42,6 +42,7 @@
 #include "timer.h" //for timer
 #include "interrupt.h" //for interrupt
 #include "hw_ints.h" //for INT_TIMER2A
+//#include "heap_1.h"
 
 //*****************************************************************************
 //
@@ -73,7 +74,6 @@
 //*****************************************************************************
 xQueueHandle g_pAdcQueue;
 
-
 extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 //
@@ -86,8 +86,20 @@ void (*ProducerTask)(AdcData_t pDataStruct);
 void ADC0Seq2_Handler(void);
 void Timer2IntHandler(void);
 void Timer0IntHandler(void);
+void clearAdcData (AdcData_t *data);
+void setAdcData (AdcData_t *data);
 
-AdcData_t adcRawInput;
+
+#define ARRAY_SIZE 1000
+AdcData_t *adcRawInput;
+uint16_t adc_input_index = 0;
+
+static AdcData_t max;
+static AdcData_t min;
+
+xSemaphoreHandle arrayFull;
+
+int adcCount = 0; //debug
 
 static void ADCTask(void *pvParameters)
 {
@@ -95,40 +107,66 @@ static void ADCTask(void *pvParameters)
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
     UARTprintf("ADC Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
+//    portTickType ui32WakeTime;
 
     // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
-		
+    //ui32WakeTime = xTaskGetTickCount();
+		int timeOut = 0xffff;
+	
     // Loop forever.
     while(1)
     {  
-        
-        /*
-        uint32_t adcInput;
-
-        ADCProcessorTrigger(ADC0_BASE, ADC_SEQUENCE2);
-
-        while(!ADCIntStatus(ADC0_BASE, ADC_SEQUENCE2, false))
+        if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) //value of 0 used for polling
         {
+					
+					for(int i = 0; i < ARRAY_SIZE; i++) {
+						if(adcRawInput[i].PE0 > max.PE0) {
+							max.PE0 = adcRawInput[i].PE0;
+						}
+						if(adcRawInput[i].PE0 < min.PE0) {
+							min.PE0 = adcRawInput[i].PE0;
+						}
+						if(adcRawInput[i].PE1 > max.PE1) {
+							max.PE1 = adcRawInput[i].PE1;
+						}
+						if(adcRawInput[i].PE1 < min.PE1) {
+							min.PE1 = adcRawInput[i].PE1;
+						}
+						if(adcRawInput[i].PE2 > max.PE2) {
+							max.PE2 = adcRawInput[i].PE2;
+						}
+						if(adcRawInput[i].PE2 < min.PE2) {
+							min.PE2 = adcRawInput[i].PE2;
+						}
+						if(adcRawInput[i].PE3 > max.PE3) {
+							max.PE3 = adcRawInput[i].PE3;
+						}
+						if(adcRawInput[i].PE3 < min.PE3) {
+							min.PE3 = adcRawInput[i].PE3;
+						}
+					}
+					ADC_Print();
+					setAdcData(&min);
+					clearAdcData(&max);
+					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+					UARTprintf("adcCount: %d\n", adcCount);
+					xSemaphoreGive(g_pUARTSemaphore);
         }
-
-        ADCIntClear(ADC0_BASE, ADC_SEQUENCE2);
-        ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcInput);
-    */
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
     } //forever loop
 }
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawInput.PE3, adcRawInput.PE2, adcRawInput.PE1, adcRawInput.PE0);
+	UARTprintf("Max PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", max.PE3, max.PE2, max.PE1, max.PE0);
+	UARTprintf("Min PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", min.PE3, min.PE2, min.PE1, min.PE0);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
+void ADC_PrintJSON(void) {
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 520, 520, 520, 520, 520);
+	xSemaphoreGive(g_pUARTSemaphore);
+}
 
 //*****************************************************************************
 //
@@ -153,7 +191,6 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     IntRegister(INT_TIMER2A, &Timer2IntHandler);
      TimerEnable(TIMER2_BASE, TIMER_A);
      */
-           
        
     //IntMasterEnable(); //needed? Should be non critical
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE); 
@@ -163,7 +200,7 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     TimerDisable(TIMER2_BASE, TIMER_A);
     TimerControlTrigger(TIMER2_BASE, TIMER_A, true); //enable timer2A trigger to ADC
     TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC); // Disables the timers, but doesn't enable again
-    TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()); //only time A should be set for full width operation, SysCltClockGet returns count for 1 second
+    TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()/1000); //SysCltClockGet returns count for 1 second so SysCtlClockGet() / 1000 sets the Timer0B load value to 1ms.
 		TimerIntDisable(TIMER2_BASE, 0xFFFFFFFF ); //disable all interrupts for this timer
     TimerEnable(TIMER2_BASE, TIMER_A);
 		
@@ -181,6 +218,12 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     IntEnable(INT_ADC0SS2);
     ADCIntClear(ADC0_BASE, ADC_SEQUENCE2);
 		
+		arrayFull = xSemaphoreCreateBinary();
+		
+		setAdcData(&min);
+		clearAdcData(&max);
+		adcRawInput = pvPortMalloc(1000 * sizeof(AdcData_t));
+		
     // Create the task.
     if(xTaskCreate(ADCTask, (const portCHAR *)"ADC", ADCTASKSTACKSIZE, NULL,
                    tskIDLE_PRIORITY + PRIORITY_ADC_TASK, NULL) != pdTRUE) 
@@ -191,16 +234,32 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     return(0);
 }
 
+void clearAdcData (AdcData_t *data) {
+	data->PE0 = 0;
+	data->PE1 = 0;
+	data->PE2 = 0;
+	data->PE3 = 0;
+}
+void setAdcData (AdcData_t *data) {
+	data->PE0 = 4095;
+	data->PE1 = 4095;
+	data->PE2 = 4095;
+	data->PE3 = 4095;
+}
+
 void ADC0Seq2_Handler(void)
 {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    ADCIntClear(ADC0_BASE, ADC_SEQUENCE2); // Clear the timer interrupt flag.
 
-    ADCIntClear(ADC0_BASE, ADC_SEQUENCE2);
-    //
-    // Clear the timer interrupt flag.
-    //
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput.PE0);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput.PE1);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput.PE2);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput.PE3);
-
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE0);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE1);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE2);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE3);
+	
+		adcCount++;
+		adc_input_index = (adc_input_index + 1) % 1000;
+		if(adc_input_index == 999) {
+			xSemaphoreGiveFromISR(arrayFull, &xHigherPriorityTaskWoken);
+		}
 }

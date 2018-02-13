@@ -40,5 +40,6 @@ typedef struct AdcData AdcData_t;
 //*****************************************************************************
 uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct));
 void ADC_Print(void);
+void ADC_PrintJSON(void); 
 
 #endif // __LED_TASK_H__

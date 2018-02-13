@@ -116,13 +116,13 @@ static void SPITask(void *pvParameters)
     // Loop forever.
     while(1)
     {  
-				
+			/*	
 			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
 			{
 					//
 					// Display the data that SSI is transferring.
 					//
-					UARTprintf("'%c' ", pui32DataTx[ui32Index]);
+					//UARTprintf("'%c' ", pui32DataTx[ui32Index]);
 
 					//
 					// Send the data using the "blocking" put function.  This function
@@ -135,7 +135,7 @@ static void SPITask(void *pvParameters)
         //
         // Wait for the required amount of time.
         //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
+        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); */
     } //forever loop 
 }
 
