@@ -146,11 +146,11 @@ static void ADCTask(void *pvParameters)
 							min.PE3 = adcRawInput[i].PE3;
 						}
 					}
-					rms.PE0 = (((max.PE1 - min.PE1) * 100)/141)/100;  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
-					rms.PE1 = (((max.PE1 - min.PE1) * 100)/141)/100; 
-					rms.PE2 = (((max.PE1 - min.PE1) * 100)/141)/100; 
-					rms.PE3 = (((max.PE1 - min.PE1) * 100)/141)/100; 
-					//ADC_Print();
+					rms.PE0 = (((max.PE0 - min.PE0) * 50)/141);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
+					rms.PE1 = (((max.PE1 - min.PE1) * 50)/141); 
+					rms.PE2 = (((max.PE2 - min.PE2) * 50)/141); 
+					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); 
+					ADC_Print();
 					ADC_PrintJSON();
 					setAdcData(&min);
 					clearAdcData(&max);
