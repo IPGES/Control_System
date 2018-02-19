@@ -486,11 +486,6 @@
               <FilePath>.\spi_task.c</FilePath>
             </File>
             <File>
-              <FileName>heap_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\FreeRTOSv10.0.0\FreeRTOS\Source\portable\MemMang\heap_1.c</FilePath>
-            </File>
-            <File>
               <FileName>FreeRTOSConfig.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\FreeRTOSConfig.h</FilePath>
