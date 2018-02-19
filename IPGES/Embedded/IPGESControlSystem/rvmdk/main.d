@@ -26,3 +26,4 @@
 .\rvmdk\main.o: pwm_task.h
 .\rvmdk\main.o: interpreter.h
 .\rvmdk\main.o: spi_task.h
+.\rvmdk\main.o: controls.h

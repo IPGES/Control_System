@@ -89,6 +89,7 @@ static void PWMTask(void *pvParameters)
 {
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("PWM Init\n");
+	
 		xSemaphoreGive(g_pUARTSemaphore);
     portTickType ui32WakeTime;
 

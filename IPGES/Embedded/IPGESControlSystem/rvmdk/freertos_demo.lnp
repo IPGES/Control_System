@@ -16,6 +16,7 @@
 ".\rvmdk\interpreter.o"
 ".\rvmdk\spi_task.o"
 ".\rvmdk\heap_1.o"
+".\rvmdk\controls.o"
 "..\driverlib\rvmdk\driverlib.lib"
 --library_type=microlib --strict --scatter "freertos_demo.sct"
 

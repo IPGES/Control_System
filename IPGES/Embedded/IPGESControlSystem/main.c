@@ -40,6 +40,7 @@
 #include "pwm_task.h"
 #include "interpreter.h"
 #include "spi_task.h"
+#include "controls.h"
 
 //*****************************************************************************
 //
@@ -179,6 +180,12 @@ int main(void)
     //
 	
    if(ADCTaskInit(&Producer) != 0) {
+        while(1) {
+					UARTprintf("Error, ADCTaskInit Failed.\n");
+				}
+    }
+	 
+		if(ControlsTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, ADCTaskInit Failed.\n");
 				}
