@@ -86,11 +86,15 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 
 static void PWMTask(void *pvParameters)
-{
+{		char controls_test = c; // Change later in code from user input
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("PWM Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
     portTickType ui32WakeTime;
+	
+		UARTprintf("Press ""p"" for Pecan Street data, ""c"" for controls testing."); // prompt user for type of test
+		controls_test = UARTgetc();		// read in user input
+		
 
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
@@ -98,8 +102,14 @@ static void PWMTask(void *pvParameters)
 
     // Loop forever.
     while(1)
-    {  
-        //
+		{   if(controls_test == 'p')
+					{load_duty = pecan_street();}
+			
+				if(controls_test == 'c')
+					{load_duty = controls();} 
+				
+				PWM_dutyCycleChange(load_duty);
+			
         // Wait for the required amount of time.
         //
         vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
