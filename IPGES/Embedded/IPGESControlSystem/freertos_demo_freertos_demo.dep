@@ -11,7 +11,7 @@ I (..\driverlib/rom_map.h)(0x5A625E5C)
 I (..\driverlib/pin_map.h)(0x5A625E5C)
 I (..\driverlib/gpio.h)(0x5A625E5C)
 I (..\drivers/buttons.h)(0x5A625E5D)
-F (.\main.c)(0x5A83304A)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\main.o --omf_browse .\rvmdk\main.crf --depend .\rvmdk\main.d)
+F (.\main.c)(0x5A8B1A63)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\main.o --omf_browse .\rvmdk\main.crf --depend .\rvmdk\main.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)
@@ -183,7 +183,7 @@ I (..\driverlib/debug.h)(0x5A625E5C)
 I (..\utils/ustdlib.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\time.h)(0x51C87C24)
-F (.\adc_task.c)(0x5A836F3A)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\adc_task.o --omf_browse .\rvmdk\adc_task.crf --depend .\rvmdk\adc_task.d)
+F (.\adc_task.c)(0x5A8B1A1D)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\adc_task.o --omf_browse .\rvmdk\adc_task.crf --depend .\rvmdk\adc_task.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)
@@ -263,7 +263,7 @@ I (..\third_party\FreeRTOS\Source\include\queue.h)(0x5A625E5F)
 I (..\third_party\FreeRTOS\Source\include\semphr.h)(0x5A625E5F)
 I (adc_task.h)(0x5A830CF6)
 I (pwm_task.h)(0x5A625E5D)
-F (.\spi_task.c)(0x5A830911)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\spi_task.o --omf_browse .\rvmdk\spi_task.crf --depend .\rvmdk\spi_task.d)
+F (.\spi_task.c)(0x5A8B219A)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\spi_task.o --omf_browse .\rvmdk\spi_task.crf --depend .\rvmdk\spi_task.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)

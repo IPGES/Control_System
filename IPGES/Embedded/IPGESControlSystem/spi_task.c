@@ -70,7 +70,7 @@ xQueueHandle g_pSpiQueue;
 // Number of bytes to send and receive.
 //
 //*****************************************************************************
-#define NUM_SSI_DATA            3
+#define NUM_SSI_DATA            1
 
 
 extern xSemaphoreHandle g_pUARTSemaphore;
@@ -109,14 +109,14 @@ static void SPITask(void *pvParameters)
     ui32WakeTime = xTaskGetTickCount();
     //char uartInput[20]; 
 	
-	  pui32DataTx[0] = 'J';
-    pui32DataTx[1] = 'i';
-    pui32DataTx[2] = 'm';
+	  pui32DataTx[0] = 128;
+    //pui32DataTx[1] = '0';
+    //pui32DataTx[2] = 0;
 		
     // Loop forever.
     while(1)
     {  
-			/*	
+			
 			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
 			{
 					//
@@ -135,7 +135,7 @@ static void SPITask(void *pvParameters)
         //
         // Wait for the required amount of time.
         //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); */
+        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
     } //forever loop 
 }
 
@@ -158,7 +158,7 @@ uint32_t SPITaskInit(void)
 								 GPIO_PIN_2);
 	
 		SSIConfigSetExpClk(SSI0_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
-									 SSI_MODE_MASTER, 1000000, 8);
+									 SSI_MODE_MASTER, 976000, 8); // 1000000
 	
 		SSIEnable(SSI0_BASE);
 	

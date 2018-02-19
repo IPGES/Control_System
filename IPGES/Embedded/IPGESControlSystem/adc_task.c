@@ -89,8 +89,8 @@ void Timer0IntHandler(void);
 void clearAdcData (AdcData_t *data);
 void setAdcData (AdcData_t *data);
 
-
-#define ARRAY_SIZE 1000
+#define SAMPLES_PER_SEC 1000
+#define ARRAY_SIZE 500 //250
 AdcData_t *adcRawInput;
 uint16_t adc_input_index = 0;
 
@@ -100,7 +100,12 @@ static AdcData_t rms;
 
 xSemaphoreHandle arrayFull;
 
-int adcCount = 0; //debug
+static uint16_t prevPosition = 0;
+static uint16_t currPosition = 0;
+static uint16_t zeroCount = 0;
+#define ZERO_POINT 1997
+
+unsigned long adcCount = 0; //debug
 
 static void ADCTask(void *pvParameters)
 {
@@ -108,14 +113,39 @@ static void ADCTask(void *pvParameters)
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
     UARTprintf("ADC Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-//    portTickType ui32WakeTime;
+    portTickType ui32WakeTime;
 
     // Get the current tick count.
-    //ui32WakeTime = xTaskGetTickCount();
+    ui32WakeTime = xTaskGetTickCount();
 		int timeOut = 0xffff;
 	
+	
+		while(1) {
+			 if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
+					if(adcRawInput[0].PE0 < ZERO_POINT) {
+						prevPosition = 0;
+					} else {
+						prevPosition = 1;
+					}
+					for(int i = 1; i < ARRAY_SIZE; i++) {
+						if(adcRawInput[i].PE0 < ZERO_POINT) { //get current position
+							currPosition = 0;
+						} else {
+							currPosition = 1;
+						}
+						if(prevPosition != currPosition) {
+							zeroCount++;
+						}
+						prevPosition = currPosition;
+					}
+					UARTprintf("Freq %d\n", zeroCount );
+					zeroCount = 0;
+				}
+	} 
+	
+	
     // Loop forever.
-    while(1)
+    /*while(1)
     {  
         if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) //value of 0 used for polling
         {
@@ -146,19 +176,20 @@ static void ADCTask(void *pvParameters)
 							min.PE3 = adcRawInput[i].PE3;
 						}
 					}
+					
 					rms.PE0 = (((max.PE0 - min.PE0) * 50)/141);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
 					rms.PE1 = (((max.PE1 - min.PE1) * 50)/141); 
 					rms.PE2 = (((max.PE2 - min.PE2) * 50)/141); 
 					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); 
 					ADC_Print();
-					ADC_PrintJSON();
+					//ADC_PrintJSON();
 					setAdcData(&min);
 					clearAdcData(&max);
 					//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 					//UARTprintf("adcCount: %d\n", adcCount);
 					//xSemaphoreGive(g_pUARTSemaphore);
         }
-    } //forever loop
+    } //forever loop */
 }
 
 void ADC_Print(void) {
@@ -206,7 +237,7 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     TimerDisable(TIMER2_BASE, TIMER_A);
     TimerControlTrigger(TIMER2_BASE, TIMER_A, true); //enable timer2A trigger to ADC
     TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC); // Disables the timers, but doesn't enable again
-    TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()/1000); //SysCltClockGet returns count for 1 second so SysCtlClockGet() / 1000 sets the Timer0B load value to 1ms.
+    TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()/SAMPLES_PER_SEC); //SysCltClockGet returns count for 1 second so SysCtlClockGet() / 1000 sets the Timer0B load value to 1ms.
 		TimerIntDisable(TIMER2_BASE, 0xFFFFFFFF ); //disable all interrupts for this timer
     TimerEnable(TIMER2_BASE, TIMER_A);
 		
@@ -264,8 +295,8 @@ void ADC0Seq2_Handler(void)
     ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE3);
 	
 		adcCount++;
-		adc_input_index = (adc_input_index + 1) % 1000;
-		if(adc_input_index == 999) {
+		adc_input_index = (adc_input_index + 1) % (ARRAY_SIZE);
+		if(adc_input_index == (ARRAY_SIZE - 1)) {
 			xSemaphoreGiveFromISR(arrayFull, &xHigherPriorityTaskWoken);
 		}
 }
