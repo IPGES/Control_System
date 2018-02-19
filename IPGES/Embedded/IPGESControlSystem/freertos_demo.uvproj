@@ -495,6 +495,11 @@
               <FileType>5</FileType>
               <FilePath>.\FreeRTOSConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>controls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\controls.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
