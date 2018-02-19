@@ -139,7 +139,7 @@ static void ADCTask(void *pvParameters)
 						}
 						prevPosition = currPosition;
 					}
-					
+					AC_freq = zeroCount;
 					//UARTprintf("Freq %d\n", zeroCount );
 					zeroCount = 0;
 				}
@@ -190,11 +190,11 @@ static void ADCTask(void *pvParameters)
 					min.PE2 = (min.PE2 * 3300)/4095;					
 					min.PE3 = (min.PE3 * 3300)/4095;
 					
-					/*
+					
 					rms.PE0 = (((max.PE0 - min.PE0) * 50)/141);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
 					rms.PE1 = (((max.PE1 - min.PE1) * 50)/141); 
 					rms.PE2 = (((max.PE2 - min.PE2) * 50)/141); 
-					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); */
+					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); 
 					
 					
 					rms.PE0 = (max.PE0 - min.PE0);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
@@ -224,6 +224,10 @@ void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", rms.PE0, rms.PE1, rms.PE2, rms.PE3, 419);
 	xSemaphoreGive(g_pUARTSemaphore);
+}
+
+uint16_t ADC_PrintFreq(void) {
+	return AC_freq;
 }
 
 //*****************************************************************************

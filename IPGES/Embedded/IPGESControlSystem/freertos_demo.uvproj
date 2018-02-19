@@ -490,6 +490,11 @@
               <FileType>5</FileType>
               <FilePath>.\FreeRTOSConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>heap_1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\heap_1.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
