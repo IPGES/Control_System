@@ -1,4 +1,4 @@
-.\rvmdk\heap_1.o: ..\..\..\..\FreeRTOSv10.0.0\FreeRTOS\Source\portable\MemMang\heap_1.c
+.\rvmdk\heap_1.o: heap_1.c
 .\rvmdk\heap_1.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
 .\rvmdk\heap_1.o: ..\third_party\FreeRTOS\Source\include\FreeRTOS.h
 .\rvmdk\heap_1.o: C:\Keil\ARM\ARMCC\bin\..\include\stddef.h
