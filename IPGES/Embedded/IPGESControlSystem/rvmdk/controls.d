@@ -21,3 +21,4 @@
 .\rvmdk\controls.o: ..\third_party\FreeRTOS\Source\include\queue.h
 .\rvmdk\controls.o: ..\third_party\FreeRTOS\Source\include\semphr.h
 .\rvmdk\controls.o: controls.h
+.\rvmdk\controls.o: adc_task.h

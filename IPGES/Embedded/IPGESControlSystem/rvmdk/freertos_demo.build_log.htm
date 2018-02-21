@@ -3,37 +3,23 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Users\Jiahan Liu\Documents\Projects\IPGES_Control_System\IPGES\Embedded\IPGESControlSystem\freertos_demo.uvproj
+C:\Users\julia\Documents\2018 Spring UT\464H Senior Design\Control_System\IPGES\Embedded\IPGESControlSystem\freertos_demo.uvproj
 Project File Date:  02/19/2018
 
 <h2>Output:</h2>
 Build target 'freertos_demo'
-compiling main.c...
+compiling controls.c...
 linking...
-Program Size: Code=7908 RO-data=1036 RW-data=1644 ZI-data=30980  
+Program Size: Code=7904 RO-data=1036 RW-data=1644 ZI-data=30980  
 After Build - User command #1: fromelf --bin --output .\rvmdk\freertos_demo.bin .\rvmdk\freertos_demo.axf
 ".\rvmdk\freertos_demo.axf" - 0 Error(s), 0 Warning(s).
-Load "C:\\Users\\Jiahan Liu\\Documents\\Projects\\IPGES_Control_System\\IPGES\\Embedded\\IPGESControlSystem\\rvmdk\\freertos_demo.axf" 
+Load "C:\\Users\\julia\\Documents\\2018 Spring UT\\464H Senior Design\\Control_System\\IPGES\\Embedded\\IPGESControlSystem\\rvmdk\\freertos_demo.axf" 
 Connecting: Mode=JTAG, Speed=1000000Hz
 Erase Done.
 Programming Done.
 Verify OK.
-K.
-g Done.
-Verify OK.
-ng:  #12-D: parsing restarts here after previous syntax error
-  {
-controls.c(88): error:  #20: identifier "g_pUARTSemaphore" is undefined
-                xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-controls.c(116): error:  #247: function "ControlsTaskInit" has already been defined
-  uint32_t ControlsTaskInit(void)
-controls.c(119): error:  #20: identifier "ControlsTask" is undefined
-      if(xTaskCreate(ControlsTask, (const portCHAR *)"Controls", SPITASKSTACKSIZE, NULL,
-controls.c: 1 warning, 4 errors
-".\rvmdk\freertos_demo.axf" - 6 Error(s), 2 Warning(s).
-Target not created
-er "ControlsTask" is undefined
-      if(xTaskCreate(ControlsTask, (const portCHAR *)"Controls", SPITASKSTACKSIZE, NULL,
-controls.c: 1 warning, 5 errors
-".\rvmdk\freertos_demo.axf" - 8 Error(s), 2 Warning(s).
-Target not created
+.\rvmdk\freertos_demo.axf
+".\rvmdk\freertos_demo.axf" - 0 Error(s), 2 Warning(s).
+\freertos_demo.axf" - 0 Error(s), 2 Warning(s).
+er Build - User command #1: fromelf --bin --output .\rvmdk\freertos_demo.bin .\rvmdk\freertos_demo.axf
+".\rvmdk\freertos_demo.axf" - 0 Error(s), 1 Warning(s).

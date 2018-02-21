@@ -140,7 +140,7 @@ static void ADCTask(void *pvParameters)
 						prevPosition = currPosition;
 					}
 					AC_freq = zeroCount;
-					UARTprintf("Freq %d\n", zeroCount );
+					//UARTprintf("Freq %d\n", zeroCount );
 					zeroCount = 0;
 				}
 	} 

@@ -30,6 +30,6 @@
 // Prototypes for the LED task.
 //
 //*****************************************************************************
-uint32_t ControlsTaskInit(void);; 
+uint32_t ControlsTaskInit(void);
 
 #endif // __LED_TASK_H__

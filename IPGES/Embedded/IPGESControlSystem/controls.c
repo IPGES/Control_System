@@ -35,6 +35,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include "controls.h"
+#include "adc_task.h"
 
 /*
 #include "driverlib/gpio.h"
@@ -94,17 +95,21 @@ static void ControlsTask(void *pvParameters)
     ui32WakeTime = xTaskGetTickCount();
     //char uartInput[20]; 
 
-		
+	
+		uint16_t input = 0;
+	
     // Loop forever.
     while(1)
     {  
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-    UARTprintf("Controls AAA\n");
+		input = ADC_PrintFreq();	
+		
+			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    UARTprintf("Freq %d\n", input);
 		xSemaphoreGive(g_pUARTSemaphore);
         //
         // Wait for the required amount of time.
         //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
+        /vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
     } //forever loop 
 }
 
