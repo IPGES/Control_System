@@ -178,18 +178,18 @@ int main(void)
     //
     // Create the task.
     //
-	
+	/*
    if(ADCTaskInit(&Producer) != 0) {
         while(1) {
 					UARTprintf("Error, ADCTaskInit Failed.\n");
 				}
-    }
+    }*/
 	 
-		if(ControlsTaskInit() != 0) {
+		/* if(ControlsTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, ADCTaskInit Failed.\n");
 				}
-    }
+    } */
 
     if(PWMTaskInit() != 0) {
         while(1) {
@@ -202,13 +202,13 @@ int main(void)
 					UARTprintf("Error, SPITaskInit Failed.\n");
         }
     } */ 
-		/*
+		
 		if(InterpreterTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
     } 
-		*/
+		
     vTaskStartScheduler(); // Start the scheduler.  This should not return.
 
     while(1) {
