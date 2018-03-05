@@ -21,3 +21,5 @@
 .\rvmdk\gpio_task.o: ..\third_party\FreeRTOS\Source\include\queue.h
 .\rvmdk\gpio_task.o: ..\third_party\FreeRTOS\Source\include\semphr.h
 .\rvmdk\gpio_task.o: gpio_task.h
+.\rvmdk\gpio_task.o: ..\driverlib\sysctl.h
+.\rvmdk\gpio_task.o: ..\driverlib\gpio.h

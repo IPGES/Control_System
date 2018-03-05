@@ -36,6 +36,9 @@
 #include "semphr.h"
 #include "gpio_task.h"
 
+#include "sysctl.h" //for init ports
+#include "gpio.h"
+
 /*
 #include "driverlib/gpio.h"
 #include "driverlib/ssi.h"
@@ -74,17 +77,26 @@ static void GPIOTask(void *pvParameters)
 	
 		uint16_t input = 0;
 	
+	
     // Loop forever.
     while(1)
     {  
-			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-    UARTprintf("Freq %d\n", input);
-		xSemaphoreGive(g_pUARTSemaphore);
+				GPIO_PB2_SET_HIGH();
         //
         // Wait for the required amount of time.
         //
         vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
-    } //forever loop 
+			GPIO_PB2_SET_LOW();
+			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
+    }  //forever loop 
+}
+
+void GPIO_PB2_SET_HIGH(void) {
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+}
+
+void GPIO_PB2_SET_LOW(void) {
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
 }
 
 //*****************************************************************************
@@ -94,6 +106,9 @@ static void GPIOTask(void *pvParameters)
 //*****************************************************************************
 uint32_t GPIOTaskInit(void)
 {
+	SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
     // Create the task.
     if(xTaskCreate(GPIOTask, (const portCHAR *)"GPIO", GPIOSTASKSTACKSIZE, NULL,
                    tskIDLE_PRIORITY + PRIORITY_GPIO_TASK, NULL) != pdTRUE) 
