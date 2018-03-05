@@ -8,14 +8,10 @@ Project File Date:  03/05/2018
 
 <h2>Output:</h2>
 Build target 'freertos_demo'
-compiling controls.c...
-controls.c(99): warning:  #550-D: variable "input" was set but never used
-                uint16_t input = 0;
-controls.c: 1 warning, 0 errors
 linking...
-Program Size: Code=9300 RO-data=1592 RW-data=1644 ZI-data=30980  
+Program Size: Code=9536 RO-data=1592 RW-data=1644 ZI-data=30980  
 After Build - User command #1: fromelf --bin --output .\rvmdk\freertos_demo.bin .\rvmdk\freertos_demo.axf
-".\rvmdk\freertos_demo.axf" - 0 Error(s), 1 Warning(s).
+".\rvmdk\freertos_demo.axf" - 0 Error(s), 0 Warning(s).
 Load "C:\\Users\\Jiahan Liu\\Documents\\Projects\\IPGES_Control_System\\IPGES\\Embedded\\IPGESControlSystem\\rvmdk\\freertos_demo.axf" 
 Connecting: Mode=JTAG, Speed=1000000Hz
 Erase Done.
@@ -24,12 +20,16 @@ Verify OK.
 </pre>
 </body>
 </html>
-3): error:  #20: identifier "dutyCycle" is undefined
-                                        dutyCycle = (uartInput[4] - 48) * 10 + uartInput[5] - 48;
-interpreter.c: 0 warnings, 2 errors
-compiling spi_task.c...
-compiling heap_1.c...
+mpiling heap_1.c...
 compiling controls.c...
+controls.c(99): warning:  #550-D: variable "input" was set but never used
+                uint16_t input = 0;
+controls.c: 1 warning, 0 errors
 compiling gpio_task.c...
-".\rvmdk\freertos_demo.axf" - 2 Error(s), 1 Warning(s).
-Target not created
+gpio_task.c(78): warning:  #177-D: variable "input" was declared but never referenced
+                uint16_t input = 0;
+gpio_task.c: 1 warning, 0 errors
+linking...
+Program Size: Code=9536 RO-data=1592 RW-data=1644 ZI-data=30980  
+After Build - User command #1: fromelf --bin --output .\rvmdk\freertos_demo.bin .\rvmdk\freertos_demo.axf
+".\rvmdk\freertos_demo.axf" - 0 Error(s), 3 Warning(s).
