@@ -1,17 +1,5 @@
 Dependencies for Project 'freertos_demo', Target 'freertos_demo': (DO NOT MODIFY !)
-F (..\drivers\buttons.c)(0x5A625E5D)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\buttons.o --omf_browse .\rvmdk\buttons.crf --depend .\rvmdk\buttons.d)
-I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
-I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-I (..\inc/hw_types.h)(0x5A625E5D)
-I (..\inc/hw_memmap.h)(0x5A625E5D)
-I (..\inc/hw_gpio.h)(0x5A625E5D)
-I (..\driverlib/sysctl.h)(0x5A625E5C)
-I (..\driverlib/rom.h)(0x5A625E5C)
-I (..\driverlib/rom_map.h)(0x5A625E5C)
-I (..\driverlib/pin_map.h)(0x5A625E5C)
-I (..\driverlib/gpio.h)(0x5A625E5C)
-I (..\drivers/buttons.h)(0x5A625E5D)
-F (.\main.c)(0x5A9D9032)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\main.o --omf_browse .\rvmdk\main.crf --depend .\rvmdk\main.d)
+F (.\main.c)(0x5A9DA101)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\main.o --omf_browse .\rvmdk\main.crf --depend .\rvmdk\main.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)
@@ -40,6 +28,7 @@ I (pwm_task.h)(0x5A9D936E)
 I (interpreter.h)(0x5A625E5D)
 I (spi_task.h)(0x5A6B8993)
 I (controls.h)(0x5A97254D)
+I (gpio_task.h)(0x5A9D9978)
 F (.\led_task.c)(0x5A625E5D)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\led_task.o --omf_browse .\rvmdk\led_task.crf --depend .\rvmdk\led_task.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
@@ -52,7 +41,7 @@ I (..\drivers/buttons.h)(0x5A625E5D)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (led_task.h)(0x5A625E5D)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -120,33 +109,6 @@ I (..\driverlib/gpio.h)(0x5A625E5C)
 I (..\driverlib/interrupt.h)(0x5A625E5C)
 I (..\drivers\rgb.h)(0x5A625E5D)
 F (.\startup_rvmdk.S)(0x5A625E5D)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-o .\rvmdk\startup_rvmdk.o --depend .\rvmdk\startup_rvmdk.d)
-F (.\switch_task.c)(0x5A625E5D)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\switch_task.o --omf_browse .\rvmdk\switch_task.crf --depend .\rvmdk\switch_task.d)
-I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
-I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
-I (..\inc/hw_memmap.h)(0x5A625E5D)
-I (..\inc/hw_types.h)(0x5A625E5D)
-I (..\inc/hw_gpio.h)(0x5A625E5D)
-I (..\driverlib/sysctl.h)(0x5A625E5C)
-I (..\driverlib/gpio.h)(0x5A625E5C)
-I (..\driverlib/rom.h)(0x5A625E5C)
-I (..\drivers/buttons.h)(0x5A625E5D)
-I (..\utils/uartstdio.h)(0x5A625E63)
-I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
-I (switch_task.h)(0x5A625E5D)
-I (led_task.h)(0x5A625E5D)
-I (priorities.h)(0x5A9D984D)
-I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
-I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
-I (.\FreeRTOSConfig.h)(0x5A83309E)
-I (..\third_party\FreeRTOS\Source\include\projdefs.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\portable.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\deprecated_definitions.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F\portmacro.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\mpu_wrappers.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\task.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\list.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\queue.h)(0x5A625E5F)
-I (..\third_party\FreeRTOS\Source\include\semphr.h)(0x5A625E5F)
 F (..\third_party\FreeRTOS\Source\tasks.c)(0x5A625E5F)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\tasks.o --omf_browse .\rvmdk\tasks.crf --depend .\rvmdk\tasks.d)
 I (C:\Keil\ARM\ARMCC\include\stdlib.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\string.h)(0x51C87C24)
@@ -193,7 +155,7 @@ I (..\driverlib/rom.h)(0x5A625E5C)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (adc_task.h)(0x5A9473D1)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -221,7 +183,7 @@ I (..\driverlib/rom.h)(0x5A625E5C)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (pwm_task.h)(0x5A9D936E)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -240,7 +202,7 @@ I (..\driverlib\gpio.h)(0x5A625E5C)
 I (..\driverlib\interrupt.h)(0x5A625E5C)
 I (..\inc\hw_ints.h)(0x5A625E5D)
 I (..\driverlib\pin_map.h)(0x5A625E5C)
-F (.\interpreter.c)(0x5A9D9119)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\interpreter.o --omf_browse .\rvmdk\interpreter.crf --depend .\rvmdk\interpreter.d)
+F (.\interpreter.c)(0x5A9DA123)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\interpreter.o --omf_browse .\rvmdk\interpreter.crf --depend .\rvmdk\interpreter.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)
@@ -249,7 +211,7 @@ I (..\driverlib/rom.h)(0x5A625E5C)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (interpreter.h)(0x5A625E5D)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -273,7 +235,7 @@ I (..\driverlib/rom.h)(0x5A625E5C)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (spi_task.h)(0x5A6B8993)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -304,7 +266,7 @@ I (..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F\portmacro.h)(0x5A625E5F
 I (..\third_party\FreeRTOS\Source\include\mpu_wrappers.h)(0x5A625E5F)
 I (..\third_party\FreeRTOS\Source\include\task.h)(0x5A625E5F)
 I (..\third_party\FreeRTOS\Source\include\list.h)(0x5A625E5F)
-F (.\controls.c)(0x5A9D98A5)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\controls.o --omf_browse .\rvmdk\controls.crf --depend .\rvmdk\controls.d)
+F (.\controls.c)(0x5A9DA1B3)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\controls.o --omf_browse .\rvmdk\controls.crf --depend .\rvmdk\controls.d)
 I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
 I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
 I (..\inc/hw_memmap.h)(0x5A625E5D)
@@ -313,7 +275,7 @@ I (..\driverlib/rom.h)(0x5A625E5C)
 I (..\utils/uartstdio.h)(0x5A625E63)
 I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
 I (spi_task.h)(0x5A6B8993)
-I (priorities.h)(0x5A9D984D)
+I (priorities.h)(0x5A9D9AEC)
 I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
 I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
 I (.\FreeRTOSConfig.h)(0x5A83309E)
@@ -328,6 +290,28 @@ I (..\third_party\FreeRTOS\Source\include\queue.h)(0x5A625E5F)
 I (..\third_party\FreeRTOS\Source\include\semphr.h)(0x5A625E5F)
 I (controls.h)(0x5A97254D)
 I (adc_task.h)(0x5A9473D1)
-F (.\gpio_task.c)(0x5A9D98E6)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\gpio_task.o --omf_browse .\rvmdk\gpio_task.crf --depend .\rvmdk\gpio_task.d)
+F (.\gpio_task.c)(0x5A9DA0B8)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I. -I.. -I..\ -I..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F -I..\third_party\FreeRTOS -I..\third_party\FreeRTOS\Source\include -I..\third_party -I..\driverlib -I..\inc --c99-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\TI\TM4C123-Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -DTM4C123GH6PM-o .\rvmdk\gpio_task.o --omf_browse .\rvmdk\gpio_task.crf --depend .\rvmdk\gpio_task.d)
+I (C:\Keil\ARM\ARMCC\include\stdbool.h)(0x51C87C24)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C87C24)
+I (..\inc/hw_memmap.h)(0x5A625E5D)
+I (..\inc/hw_types.h)(0x5A625E5D)
+I (..\driverlib/rom.h)(0x5A625E5C)
+I (..\utils/uartstdio.h)(0x5A625E63)
+I (C:\Keil\ARM\ARMCC\include\stdarg.h)(0x51C87C24)
+I (spi_task.h)(0x5A6B8993)
+I (priorities.h)(0x5A9D9AEC)
+I (..\third_party\FreeRTOS\Source\include\FreeRTOS.h)(0x5A625E5F)
+I (C:\Keil\ARM\ARMCC\include\stddef.h)(0x51C87C24)
+I (.\FreeRTOSConfig.h)(0x5A83309E)
+I (..\third_party\FreeRTOS\Source\include\projdefs.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\portable.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\deprecated_definitions.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\portable\RVDS\ARM_CM4F\portmacro.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\mpu_wrappers.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\task.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\list.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\queue.h)(0x5A625E5F)
+I (..\third_party\FreeRTOS\Source\include\semphr.h)(0x5A625E5F)
+I (gpio_task.h)(0x5A9D9978)
 F (..\driverlib\rvmdk\driverlib.lib)(0x5A625E5C)()
 F (.\readme.txt)(0x5A625E5D)()

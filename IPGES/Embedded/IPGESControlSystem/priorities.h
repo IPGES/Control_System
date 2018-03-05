@@ -30,6 +30,7 @@
 // The priorities of the various tasks.
 //
 //*****************************************************************************
+#define PRIORITY_GPIO_TASK			6
 #define PRIORITY_SPI_TASK       6
 #define PRIORITY_PWM_TASK       6
 #define PRIORITY_ADC_TASK       6

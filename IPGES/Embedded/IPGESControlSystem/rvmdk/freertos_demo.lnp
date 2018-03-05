@@ -1,5 +1,4 @@
 --cpu Cortex-M4.fp
-".\rvmdk\buttons.o"
 ".\rvmdk\main.o"
 ".\rvmdk\led_task.o"
 ".\rvmdk\list.o"
@@ -7,7 +6,6 @@
 ".\rvmdk\queue.o"
 ".\rvmdk\rgb.o"
 ".\rvmdk\startup_rvmdk.o"
-".\rvmdk\switch_task.o"
 ".\rvmdk\tasks.o"
 ".\rvmdk\uartstdio.o"
 ".\rvmdk\ustdlib.o"

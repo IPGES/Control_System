@@ -406,11 +406,6 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
-              <FileName>buttons.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\buttons.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
@@ -444,11 +439,6 @@
               <FileName>startup_rvmdk.S</FileName>
               <FileType>2</FileType>
               <FilePath>.\startup_rvmdk.S</FilePath>
-            </File>
-            <File>
-              <FileName>switch_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\switch_task.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
@@ -499,6 +489,11 @@
               <FileName>controls.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\controls.c</FilePath>
+            </File>
+            <File>
+              <FileName>gpio_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\gpio_task.c</FilePath>
             </File>
           </Files>
         </Group>

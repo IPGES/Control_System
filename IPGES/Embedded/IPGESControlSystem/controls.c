@@ -103,9 +103,10 @@ static void ControlsTask(void *pvParameters)
     {  
 		input = ADC_PrintFreq();	
 		
+			/*
 			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
     UARTprintf("Freq %d\n", input);
-		xSemaphoreGive(g_pUARTSemaphore);
+		xSemaphoreGive(g_pUARTSemaphore); */
         //
         // Wait for the required amount of time.
         //

@@ -41,6 +41,7 @@
 #include "interpreter.h"
 #include "spi_task.h"
 #include "controls.h"
+#include "gpio_task.h"
 
 //*****************************************************************************
 //
@@ -196,19 +197,25 @@ int main(void)
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
     }  
+
+		if(PWMTaskInit() != 0) {
+        while(1) {
+					UARTprintf("Error, PWMTaskInit Failed.\n");
+        }
+    }  
 		
 	/*	 if(SPITaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, SPITaskInit Failed.\n");
         }
     } */ 
-		/*
+		
 		if(InterpreterTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
     } 
-		*/
+		
     vTaskStartScheduler(); // Start the scheduler.  This should not return.
 
     while(1) {
