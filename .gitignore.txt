@@ -1,2 +1,6 @@
+*.uvgui
+*.bak
+*.uvopt
 *.o
-*.
+*.axf
+*.htm
