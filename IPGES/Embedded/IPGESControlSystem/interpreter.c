@@ -80,20 +80,19 @@ static void InterpreterTask(void *pvParameters)
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-   // char uartInput[INPUTLENGTH];
-//		int dutyCycle;
+    char uartInput[INPUTLENGTH];
+		int dutyCycle;
 	
 	  portTickType ui32WakeTime;
 
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
-
+  
 	
     while(1)
     {  
 			//ADC_PrintJSON();
-			/*
+			
 			UARTgets(uartInput, INPUTLENGTH); //note this is blocking, use peek to do non-blocking
 			switch(uartInput[0]) {
 				case 'A':
@@ -113,7 +112,7 @@ static void InterpreterTask(void *pvParameters)
 					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 					UARTprintf("Command not found\n");
 					xSemaphoreGive(g_pUARTSemaphore);
-			}*/
+			}
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
 	}
 }
