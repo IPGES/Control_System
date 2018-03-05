@@ -170,7 +170,7 @@ int main(void)
 
     ConfigureUART(); //Initialize the UART and configure it for 115,200 badrate, 8-N-1 operation.
 
-    UARTprintf("Jiahan Liu, Jiahan Liu, Joshua Graham, Kassandra Smith\nBraden Stotmeister, Madeline Jasper\n");
+    UARTprintf("Jiahan Liu, Julia Conger, Joshua Graham, Kassandra Smith\nBraden Stotmeister, Madeline Jasper\n");
     UARTprintf("Suma, Santoso, Oriana, Alvaro, Boom\n"); // Hello World.
 
     g_pUARTSemaphore = xSemaphoreCreateMutex(); // Create a mutex to guard the UART.

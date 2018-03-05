@@ -31,6 +31,7 @@
 //
 //*****************************************************************************
 uint32_t PWMTaskInit(void);
-void PWM_dutyCycleChange(int dutyCycle);
+void PWM_duty_change_chopper(int dutyCycle);
+void PWM_duty_change_wind(int dutyCycle);
 
 #endif // __LED_TASK_H__

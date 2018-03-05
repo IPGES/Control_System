@@ -128,9 +128,9 @@ uint32_t PWMTaskInit(void)
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
  
 	
-		SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
-		SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+		//SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
+		//SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+    //SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     GPIOPinConfigure(GPIO_PB7_M0PWM1);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
     PWMGenConfigure(PWM0_BASE, PWM_GEN_0, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_DB_NO_SYNC);
@@ -142,6 +142,16 @@ uint32_t PWMTaskInit(void)
     GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
 		
+		GPIOPinConfigure(GPIO_PB4_M0PWM2);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_4);
+    PWMGenConfigure(PWM0_BASE, PWM_GEN_1, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_DB_NO_SYNC);
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, 2500);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, 2500* 50/100);
+    PWMOutputState(PWM0_BASE, PWM_OUT_2_BIT, true);
+    //PWMOutputInvert(PWM0_BASE, PWM_OUT_1_BIT, true);
+    PWMDeadBandEnable(PWM0_BASE, PWM_GEN_1, 0xF, 0xF);
+    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
+    PWMGenEnable(PWM0_BASE, PWM_GEN_1);
 	
 	
     /* Used for more intense signals
@@ -161,9 +171,13 @@ uint32_t PWMTaskInit(void)
     return(0);
 }
 
-void PWM_dutyCycleChange(int dutyCycle) {
+void PWM_duty_change_chopper(int dutyCycle) {
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500* dutyCycle/100);
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2500* dutyCycle/100);
+}
+
+void PWM_duty_change_wind(int dutyCycle) {
+	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, 2500* dutyCycle/100);
 }
 
 /*

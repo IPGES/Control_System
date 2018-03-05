@@ -102,7 +102,7 @@ static void InterpreterTask(void *pvParameters)
 				case 'P': //PWM 50
 					dutyCycle = (uartInput[4] - 48) * 10 + uartInput[5] - 48;
 					if(0 <= dutyCycle && dutyCycle <= 99) {
-						PWM_dutyCycleChange(dutyCycle);
+						PWM_duty_change_chopper(dutyCycle);
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 						UARTprintf("Duty cycle between 0-99 inclusive.\n");
