@@ -88,9 +88,10 @@ void Timer2IntHandler(void);
 void Timer0IntHandler(void);
 void clearAdcData (AdcData_t *data);
 void setAdcData (AdcData_t *data);
+int sqrt(int input);
 
-#define SAMPLES_PER_SEC 1000
-#define ARRAY_SIZE 500 //250
+#define SAMPLES_PER_SEC 5000
+#define ARRAY_SIZE 250 //250
 AdcData_t *adcRawInput;
 uint16_t adc_input_index = 0;
 
@@ -119,98 +120,39 @@ static void ADCTask(void *pvParameters)
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
 		int timeOut = 0xffff;
-	
-	
+		int sum = 0;
+		int result = 0;
+		
 		while(1) {
 			 if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
-					if(adcRawInput[0].PE0 < ZERO_POINT) {
-						prevPosition = 0;
-					} else {
-						prevPosition = 1;
-					}
-					for(int i = 1; i < ARRAY_SIZE; i++) {
-						if(adcRawInput[i].PE0 < ZERO_POINT) { //get current position
-							currPosition = 0;
-						} else {
-							currPosition = 1;
-						}
-						if(prevPosition != currPosition) {
-							zeroCount++;
-						}
-						prevPosition = currPosition;
-					}
-					AC_freq = zeroCount;
-					//UARTprintf("Freq %d\n", zeroCount );
-					zeroCount = 0;
-				}
-	} 
-	
-	
-    // Loop forever.
-    /*while(1)
-    {  
-        if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) //value of 0 used for polling
-        {
-					
 					for(int i = 0; i < ARRAY_SIZE; i++) {
-						if(adcRawInput[i].PE0 > max.PE0) {
-							max.PE0 = adcRawInput[i].PE0;
-						}
-						if(adcRawInput[i].PE0 < min.PE0) {
-							min.PE0 = adcRawInput[i].PE0;
-						}
-						if(adcRawInput[i].PE1 > max.PE1) {
-							max.PE1 = adcRawInput[i].PE1;
-						}
-						if(adcRawInput[i].PE1 < min.PE1) {
-							min.PE1 = adcRawInput[i].PE1;
-						}
-						if(adcRawInput[i].PE2 > max.PE2) {
-							max.PE2 = adcRawInput[i].PE2;
-						}
-						if(adcRawInput[i].PE2 < min.PE2) {
-							min.PE2 = adcRawInput[i].PE2;
-						}
-						if(adcRawInput[i].PE3 > max.PE3) {
-							max.PE3 = adcRawInput[i].PE3;
-						}
-						if(adcRawInput[i].PE3 < min.PE3) {
-							min.PE3 = adcRawInput[i].PE3;
-						}
+						sum += (adcRawInput[i].PE0 * adcRawInput[i].PE0) / 100;
+						//UARTprintf("%d, ", (adcRawInput[i].PE0 * 3300) / (4095) );
 					}
-					
-					
-					max.PE0 = (max.PE0 * 3300)/4095;
-					max.PE1 = (max.PE1 * 3300)/4095;
-					max.PE2 = (max.PE2 * 3300)/4095;					
-					max.PE3 = (max.PE3 * 3300)/4095;
-					
-					min.PE0 = (min.PE0 * 3300)/4095;
-					min.PE1 = (min.PE1 * 3300)/4095;
-					min.PE2 = (min.PE2 * 3300)/4095;					
-					min.PE3 = (min.PE3 * 3300)/4095;
-					
-					
-					rms.PE0 = (((max.PE0 - min.PE0) * 50)/141);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
-					rms.PE1 = (((max.PE1 - min.PE1) * 50)/141); 
-					rms.PE2 = (((max.PE2 - min.PE2) * 50)/141); 
-					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); 
-					
-					
-					rms.PE0 = (max.PE0 - min.PE0);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
-					rms.PE1 = (max.PE1 - min.PE1); 
-					rms.PE2 = (max.PE2 - min.PE2); 
-					rms.PE3 = (max.PE3 - min.PE3);
-					
-					//ADC_Print();
-					ADC_PrintJSON();
-					setAdcData(&min);
-					clearAdcData(&max);
-					//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-					//UARTprintf("adcCount: %d\n", adcCount);
-					//xSemaphoreGive(g_pUARTSemaphore);
-        }
-    } //forever loop */
+					sum /= ARRAY_SIZE;
+					sum = sqrt(sum);
+				}
+				result = (sum * 3300) / 4095;
+				UARTprintf("RMS Voltage %d, ", result );
+		}			 
+}
+
+int sqrt(int input) {
+	
+	int guess = 1650;
+	int guess_sq = 27225;
+	int delta = 820;
+	for(int i = 0; i < 9; i++) {
+		if(input > guess_sq) {
+			guess += delta;
+			guess_sq = (guess / 10) * (guess / 10);
+		} else {
+			guess -= delta;
+			guess_sq = (guess / 10) * (guess / 10);
+		}
+		delta /= 2;
+	}
+	return guess; 
 }
 
 void ADC_Print(void) {
@@ -273,7 +215,8 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 1, ADC_CTL_CH2 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 2, ADC_CTL_CH1 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 3, ADC_CTL_CH0 | ADC_CTL_END | ADC_CTL_IE); //adc_base, Sequence Number, Step, set flag and end after first
-    ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE2); //adc_base, sequence 
+    ADCHardwareOversampleConfigure(ADC0_BASE, 64);
+		ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE2); //adc_base, sequence 
     ADCIntEnable(ADC0_BASE, ADC_SEQUENCE2);
     ADCIntRegister(ADC0_BASE, ADC_SEQUENCE2, &ADC0Seq2_Handler);
     IntPrioritySet(INT_ADC0SS2, ADC_SEQUENCE2_PRIORITY);
