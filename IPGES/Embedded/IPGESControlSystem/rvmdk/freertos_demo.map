@@ -986,22 +986,22 @@ Image Symbol Table
 
     RESET                                    0x00000000   Section      648  startup_rvmdk.o(RESET)
     ../clib/../cmprslib/zerorunl.c           0x00000000   Number         0  __dczerorl.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
-    ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpya.o ABSOLUTE
+    ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
     ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
     ../clib/microlib/stubs.s                 0x00000000   Number         0  iusefp.o ABSOLUTE
     ../fplib/microlib/fpfix.c                0x00000000   Number         0  ffixul.o ABSOLUTE
@@ -1021,6 +1021,7 @@ Image Symbol Table
     cpu.c                                    0x00000000   Number         0  cpu.o ABSOLUTE
     dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
     gpio.c                                   0x00000000   Number         0  gpio.o ABSOLUTE
+    gpio_task.c                              0x00000000   Number         0  gpio_task.o ABSOLUTE
     handlers.s                               0x00000000   Number         0  handlers.o ABSOLUTE
     heap_1.c                                 0x00000000   Number         0  heap_1.o ABSOLUTE
     init.s                                   0x00000000   Number         0  init.o ABSOLUTE
@@ -1388,77 +1389,77 @@ Memory Map of the image
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x00000000   0x00000288   Code   RO          543  * RESET               startup_rvmdk.o
-    0x00000288   0x00000000   Code   RO         3224  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000288   0x00000004   Code   RO         3235    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x0000028c   0x00000004   Code   RO         3238    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x00000290   0x00000000   Code   RO         3240    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x00000290   0x00000000   Code   RO         3242    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x00000290   0x00000008   Code   RO         3243    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000298   0x00000000   Code   RO         3245    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000298   0x00000000   Code   RO         3247    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000298   0x00000004   Code   RO         3236    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000288   0x00000000   Code   RO         3227  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000288   0x00000004   Code   RO         3238    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x0000028c   0x00000004   Code   RO         3241    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x00000290   0x00000000   Code   RO         3243    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x00000290   0x00000000   Code   RO         3245    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x00000290   0x00000008   Code   RO         3246    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000298   0x00000000   Code   RO         3248    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000298   0x00000000   Code   RO         3250    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000298   0x00000004   Code   RO         3239    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x0000029c   0x000000b6   Code   RO          226    .emb_text           port.o
-    0x00000352   0x00000024   Code   RO         3227    .text               mc_w.l(memcpya.o)
-    0x00000376   0x00000024   Code   RO         3229    .text               mc_w.l(memseta.o)
+    0x00000352   0x00000024   Code   RO         3230    .text               mc_w.l(memcpya.o)
+    0x00000376   0x00000024   Code   RO         3232    .text               mc_w.l(memseta.o)
     0x0000039a   0x00000002   PAD
-    0x0000039c   0x00000024   Code   RO         3252    .text               mc_w.l(init.o)
-    0x000003c0   0x0000003a   Code   RO         3262    .text               mc_w.l(__dczerorl.o)
+    0x0000039c   0x00000024   Code   RO         3255    .text               mc_w.l(init.o)
+    0x000003c0   0x0000003a   Code   RO         3265    .text               mc_w.l(__dczerorl.o)
     0x000003fa   0x00000002   PAD
     0x000003fc   0x0000008c   Code   RO         1032    i.ADC0Seq2_Handler  adc_task.o
-    0x00000488   0x0000001c   Code   RO         1245    i.ADCClockConfigSet  driverlib.lib(adc.o)
-    0x000004a4   0x0000000a   Code   RO         1254    i.ADCIntClear       driverlib.lib(adc.o)
-    0x000004ae   0x00000010   Code   RO         1258    i.ADCIntEnable      driverlib.lib(adc.o)
+    0x00000488   0x0000001c   Code   RO         1248    i.ADCClockConfigSet  driverlib.lib(adc.o)
+    0x000004a4   0x0000000a   Code   RO         1257    i.ADCIntClear       driverlib.lib(adc.o)
+    0x000004ae   0x00000010   Code   RO         1261    i.ADCIntEnable      driverlib.lib(adc.o)
     0x000004be   0x00000002   PAD
-    0x000004c0   0x00000068   Code   RO         1260    i.ADCIntRegister    driverlib.lib(adc.o)
-    0x00000528   0x00000060   Code   RO         1269    i.ADCSequenceConfigure  driverlib.lib(adc.o)
-    0x00000588   0x00000024   Code   RO         1272    i.ADCSequenceDataGet  driverlib.lib(adc.o)
-    0x000005ac   0x00000010   Code   RO         1273    i.ADCSequenceDisable  driverlib.lib(adc.o)
-    0x000005bc   0x0000000e   Code   RO         1274    i.ADCSequenceEnable  driverlib.lib(adc.o)
-    0x000005ca   0x0000009a   Code   RO         1277    i.ADCSequenceStepConfigure  driverlib.lib(adc.o)
+    0x000004c0   0x00000068   Code   RO         1263    i.ADCIntRegister    driverlib.lib(adc.o)
+    0x00000528   0x00000060   Code   RO         1272    i.ADCSequenceConfigure  driverlib.lib(adc.o)
+    0x00000588   0x00000024   Code   RO         1275    i.ADCSequenceDataGet  driverlib.lib(adc.o)
+    0x000005ac   0x00000010   Code   RO         1276    i.ADCSequenceDisable  driverlib.lib(adc.o)
+    0x000005bc   0x0000000e   Code   RO         1277    i.ADCSequenceEnable  driverlib.lib(adc.o)
+    0x000005ca   0x0000009a   Code   RO         1280    i.ADCSequenceStepConfigure  driverlib.lib(adc.o)
     0x00000664   0x00000098   Code   RO         1033    i.ADCTask           adc_task.o
     0x000006fc   0x00000158   Code   RO         1034    i.ADCTaskInit       adc_task.o
     0x00000854   0x0000000c   Code   RO         1036    i.ADC_PrintFreq     adc_task.o
     0x00000860   0x0000005c   Code   RO           56    i.ConfigureUART     main.o
     0x000008bc   0x00000080   Code   RO         1225    i.ControlsTask      controls.o
     0x0000093c   0x00000038   Code   RO         1226    i.ControlsTaskInit  controls.o
-    0x00000974   0x00000028   Code   RO         1526    i.GPIODirModeSet    driverlib.lib(gpio.o)
-    0x0000099c   0x00000138   Code   RO         1538    i.GPIOPadConfigSet  driverlib.lib(gpio.o)
-    0x00000ad4   0x00000044   Code   RO         1539    i.GPIOPinConfigure  driverlib.lib(gpio.o)
-    0x00000b18   0x0000001c   Code   RO         1541    i.GPIOPinTypeADC    driverlib.lib(gpio.o)
-    0x00000b34   0x0000001c   Code   RO         1557    i.GPIOPinTypePWM    driverlib.lib(gpio.o)
-    0x00000b50   0x00000064   Code   RO         1829    i.IntEnable         driverlib.lib(interrupt.o)
-    0x00000bb4   0x00000028   Code   RO         1840    i.IntPrioritySet    driverlib.lib(interrupt.o)
-    0x00000bdc   0x00000034   Code   RO         1841    i.IntRegister       driverlib.lib(interrupt.o)
-    0x00000c10   0x00000010   Code   RO         1947    i.PWMDeadBandEnable  driverlib.lib(pwm.o)
-    0x00000c20   0x00000026   Code   RO         1952    i.PWMGenConfigure   driverlib.lib(pwm.o)
-    0x00000c46   0x0000000a   Code   RO         1954    i.PWMGenEnable      driverlib.lib(pwm.o)
-    0x00000c50   0x00000012   Code   RO         1967    i.PWMGenPeriodSet   driverlib.lib(pwm.o)
-    0x00000c62   0x00000010   Code   RO         1973    i.PWMOutputInvert   driverlib.lib(pwm.o)
-    0x00000c72   0x00000010   Code   RO         1974    i.PWMOutputState    driverlib.lib(pwm.o)
-    0x00000c82   0x00000020   Code   RO         1977    i.PWMPulseWidthSet  driverlib.lib(pwm.o)
+    0x00000974   0x00000028   Code   RO         1529    i.GPIODirModeSet    driverlib.lib(gpio.o)
+    0x0000099c   0x00000138   Code   RO         1541    i.GPIOPadConfigSet  driverlib.lib(gpio.o)
+    0x00000ad4   0x00000044   Code   RO         1542    i.GPIOPinConfigure  driverlib.lib(gpio.o)
+    0x00000b18   0x0000001c   Code   RO         1544    i.GPIOPinTypeADC    driverlib.lib(gpio.o)
+    0x00000b34   0x0000001c   Code   RO         1560    i.GPIOPinTypePWM    driverlib.lib(gpio.o)
+    0x00000b50   0x00000064   Code   RO         1832    i.IntEnable         driverlib.lib(interrupt.o)
+    0x00000bb4   0x00000028   Code   RO         1843    i.IntPrioritySet    driverlib.lib(interrupt.o)
+    0x00000bdc   0x00000034   Code   RO         1844    i.IntRegister       driverlib.lib(interrupt.o)
+    0x00000c10   0x00000010   Code   RO         1950    i.PWMDeadBandEnable  driverlib.lib(pwm.o)
+    0x00000c20   0x00000026   Code   RO         1955    i.PWMGenConfigure   driverlib.lib(pwm.o)
+    0x00000c46   0x0000000a   Code   RO         1957    i.PWMGenEnable      driverlib.lib(pwm.o)
+    0x00000c50   0x00000012   Code   RO         1970    i.PWMGenPeriodSet   driverlib.lib(pwm.o)
+    0x00000c62   0x00000010   Code   RO         1976    i.PWMOutputInvert   driverlib.lib(pwm.o)
+    0x00000c72   0x00000010   Code   RO         1977    i.PWMOutputState    driverlib.lib(pwm.o)
+    0x00000c82   0x00000020   Code   RO         1980    i.PWMPulseWidthSet  driverlib.lib(pwm.o)
     0x00000ca2   0x00000002   PAD
     0x00000ca4   0x00000048   Code   RO         1108    i.PWMTask           pwm_task.o
     0x00000cec   0x00000168   Code   RO         1109    i.PWMTaskInit       pwm_task.o
     0x00000e54   0x00000002   Code   RO           57    i.Producer          main.o
     0x00000e56   0x00000002   PAD
-    0x00000e58   0x00000154   Code   RO         2332    i.SysCtlClockGet    driverlib.lib(sysctl.o)
-    0x00000fac   0x00000014   Code   RO         2358    i.SysCtlPWMClockSet  driverlib.lib(sysctl.o)
-    0x00000fc0   0x00000028   Code   RO         2363    i.SysCtlPeripheralEnable  driverlib.lib(sysctl.o)
-    0x00000fe8   0x00000060   Code   RO         2681    i.TimerConfigure    driverlib.lib(timer.o)
-    0x00001048   0x00000050   Code   RO         2685    i.TimerControlTrigger  driverlib.lib(timer.o)
-    0x00001098   0x00000010   Code   RO         2689    i.TimerDisable      driverlib.lib(timer.o)
-    0x000010a8   0x0000000e   Code   RO         2690    i.TimerEnable       driverlib.lib(timer.o)
-    0x000010b6   0x0000000a   Code   RO         2692    i.TimerIntDisable   driverlib.lib(timer.o)
-    0x000010c0   0x00000012   Code   RO         2699    i.TimerLoadSet      driverlib.lib(timer.o)
-    0x000010d2   0x00000006   Code   RO         2931    i.UARTClockSourceSet  driverlib.lib(uart.o)
+    0x00000e58   0x00000154   Code   RO         2335    i.SysCtlClockGet    driverlib.lib(sysctl.o)
+    0x00000fac   0x00000014   Code   RO         2361    i.SysCtlPWMClockSet  driverlib.lib(sysctl.o)
+    0x00000fc0   0x00000028   Code   RO         2366    i.SysCtlPeripheralEnable  driverlib.lib(sysctl.o)
+    0x00000fe8   0x00000060   Code   RO         2684    i.TimerConfigure    driverlib.lib(timer.o)
+    0x00001048   0x00000050   Code   RO         2688    i.TimerControlTrigger  driverlib.lib(timer.o)
+    0x00001098   0x00000010   Code   RO         2692    i.TimerDisable      driverlib.lib(timer.o)
+    0x000010a8   0x0000000e   Code   RO         2693    i.TimerEnable       driverlib.lib(timer.o)
+    0x000010b6   0x0000000a   Code   RO         2695    i.TimerIntDisable   driverlib.lib(timer.o)
+    0x000010c0   0x00000012   Code   RO         2702    i.TimerLoadSet      driverlib.lib(timer.o)
+    0x000010d2   0x00000006   Code   RO         2934    i.UARTClockSourceSet  driverlib.lib(uart.o)
     0x000010d8   0x0000005c   Code   RO          864    i.UARTStdioConfig   uartstdio.o
     0x00001134   0x00000012   Code   RO          867    i.UARTprintf        uartstdio.o
     0x00001146   0x00000002   PAD
     0x00001148   0x000001b4   Code   RO          868    i.UARTvprintf       uartstdio.o
     0x000012fc   0x0000003c   Code   RO          869    i.UARTwrite         uartstdio.o
-    0x00001338   0x0000000e   Code   RO         3256    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x00001346   0x00000002   Code   RO         3257    i.__scatterload_null  mc_w.l(handlers.o)
-    0x00001348   0x0000000e   Code   RO         3258    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x00001338   0x0000000e   Code   RO         3259    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x00001346   0x00000002   Code   RO         3260    i.__scatterload_null  mc_w.l(handlers.o)
+    0x00001348   0x0000000e   Code   RO         3261    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x00001356   0x0000000c   Code   RO         1038    i.clearAdcData      adc_task.o
     0x00001362   0x00000002   PAD
     0x00001364   0x00000100   Code   RO           58    i.main              main.o
@@ -1514,12 +1515,12 @@ Memory Map of the image
     0x000021c4   0x0000005e   Data   RO           60    .constdata          main.o
     0x00002222   0x00000002   PAD
     0x00002224   0x0000001c   Data   RO          870    .constdata          uartstdio.o
-    0x00002240   0x00000228   Data   RO         1570    .constdata          driverlib.lib(gpio.o)
-    0x00002468   0x0000010c   Data   RO         1845    .constdata          driverlib.lib(interrupt.o)
-    0x00002574   0x00000254   Data   RO         2385    .constdata          driverlib.lib(sysctl.o)
+    0x00002240   0x00000228   Data   RO         1573    .constdata          driverlib.lib(gpio.o)
+    0x00002468   0x0000010c   Data   RO         1848    .constdata          driverlib.lib(interrupt.o)
+    0x00002574   0x00000254   Data   RO         2388    .constdata          driverlib.lib(sysctl.o)
     0x000027c8   0x00000011   Data   RO          871    .conststring        uartstdio.o
     0x000027d9   0x00000003   PAD
-    0x000027dc   0x00000020   Data   RO         3254    Region$$Table       anon$$obj.o
+    0x000027dc   0x00000020   Data   RO         3257    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM (Base: 0x20000000, Size: 0x00007f70, Max: 0x00008000, ABSOLUTE, COMPRESSED[0x00000014])
@@ -1533,7 +1534,7 @@ Memory Map of the image
     0x20000048   0x0000001c   Data   RW         1042    .data               adc_task.o
     0x20000064   0x00000008   Data   RW         1197    .data               heap_1.o
     0x2000006c   0x00000394   PAD
-    0x20000400   0x0000026c   Data   RW         1846    vtable              driverlib.lib(interrupt.o)
+    0x20000400   0x0000026c   Data   RW         1849    vtable              driverlib.lib(interrupt.o)
     0x2000066c   0x000001a4   Zero   RW          616    .bss                tasks.o
     0x20000810   0x00000030   Zero   RW         1040    .bss                adc_task.o
     0x20000840   0x00007530   Zero   RW         1196    .bss                heap_1.o
