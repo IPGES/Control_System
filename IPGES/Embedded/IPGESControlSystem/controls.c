@@ -109,7 +109,7 @@ static void ControlsTask(void *pvParameters)
         //
         // Wait for the required amount of time.
         //
-        /vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
+        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
     } //forever loop 
 }
 
