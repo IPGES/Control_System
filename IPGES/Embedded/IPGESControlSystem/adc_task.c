@@ -89,6 +89,7 @@ void Timer0IntHandler(void);
 void clearAdcData (AdcData_t *data);
 void setAdcData (AdcData_t *data);
 int sqrt(int input);
+int undo_signal_conditioning(int input);
 
 #define SAMPLES_PER_SEC 5000
 #define ARRAY_SIZE 250 //250
@@ -133,8 +134,12 @@ static void ADCTask(void *pvParameters)
 					sum = sqrt(sum);
 				}
 				result = (sum * 3300) / 4095;
-				UARTprintf("RMS Voltage %d, ", result );
+				UARTprintf("RMS Voltage %d, ", undo_signal_conditioning(result) );
 		}			 
+}
+
+int undo_signal_conditioning(int input) {
+	return (input * (62876) / 10000);   
 }
 
 int sqrt(int input) {

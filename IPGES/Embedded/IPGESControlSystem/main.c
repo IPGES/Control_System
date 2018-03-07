@@ -192,11 +192,11 @@ int main(void)
 				}
     } */
 
-    /* if(PWMTaskInit() != 0) {
+     if(PWMTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
-    }   */
+    }   
 
 	/*	 if(SPITaskInit() != 0) {
         while(1) {
@@ -204,12 +204,12 @@ int main(void)
         }
     } */ 
 		
-		/*
+		
 		if(InterpreterTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
-    } */
+    } 
 		
 		/*
 		if(GPIOTaskInit() != 0) {
