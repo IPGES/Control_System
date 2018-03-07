@@ -13,13 +13,14 @@ s_dc = 0
 l_dc = 0
 
 #Choose Port
+'''
 print("These are all the available ports:")
 print(serial_ports())
 portNum = input("Choose a port: ")
 print("You chose: ", portNum)
 ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
 ser.flushInput()
-ser.flushOutput()
+ser.flushOutput()'''
 
 
 #Set entries per day -- we only simulate one day (could change if you increase this)
@@ -76,6 +77,23 @@ scale_factor = maxOutput * 1.05
 
 print("Before plot")
 # #Set up plot
+f, (total_plot, wind_plot, solar_plot, load_plot) = pyplot.subplots(4, sharey=True)
+total_plot.plot(time_array, wind_output, label='wind', c='b')
+total_plot.plot(time_array, solar_output, label='solar', c='r')
+total_plot.plot(time_array, load_output, label='load', c='k')
+wind_plot.plot(time_array, wind_output, label='wind', c='b')
+solar_plot.plot(time_array, solar_output, label='solar', c='r')
+load_plot.plot(time_array, load_output, label='load', c='k')
+total_plot.legend()
+wind_plot.set_ylabel('Megawatts')
+wind_plot.legend()
+solar_plot.set_ylabel('SPI Input')
+solar_plot.legend()
+load_plot.set_ylabel('Duty Cycle')
+load_plot.legend()
+pyplot.ion()
+
+'''
 pyplot.figure()
 windplot = pyplot.plot(time_array, wind_output, label='wind', c='b')
 solarplot = pyplot.plot(time_array, solar_output, label='solar', c='r')
@@ -92,14 +110,17 @@ pyplot.ion()
 pyplot.show()
 pyplot.draw()
 pyplot.pause(0.01)
-print("After plot")
+print("After plot")'''
+
 
 #Write to potentiometer for Solar Output
 def write_pot(Pot):
     Pot = 128 - Pot
     msb = Pot >> 8
     lsb = Pot & 0xFF
-    spi.xfer([msb, lsb])
+    str1 = ('SPI ' + str([msb, lsb]))
+    ser.write(str1.encode())
+    #spi.xfer([msb, lsb])
 
 
 #write dc to tm4c -- replaces adjust_dc
@@ -124,22 +145,30 @@ wind_dc = 0
 load_dc = 0
 windDest = 'PWM '
 loadDest = 'Load '
-write_dc(0, 0, windDest, .01)
-write_dc(0, 0, loadDest, .01)
+#write_dc(0, 0, windDest, .01)
+#write_dc(0, 0, loadDest, .01)
 
 
 try:
     for i in range(0, entries_per_day):
-        pyplot.scatter(time_array[i], wind_output[i], c='b')
-        pyplot.scatter(time_array[i], solar_output[i], c='r')
-        print("Wind input: ", wind_output[i], "Solar input: ", solar_output[i])
+        #pyplot.scatter(time_array[i], wind_output[i], c='b')
+        #pyplot.scatter(time_array[i], solar_output[i], c='r')
+        #total_plot.scatter(time_array[i], wind_output[i], c='b')
+        #total_plot.scatter(time_array[i], solar_output[i], c='r')
+        #total_plot.scatter(time_array[i], load_output[i], c='k')
+        wind_plot.scatter(time_array[i], wind_output[i], c='b')
+        solar_plot.scatter(time_array[i], solar_output[i], c='r')
+        load_plot.scatter(time_array[i], load_output[i], c='k')
         pyplot.draw()
         pyplot.pause(0.01)
         next_Wind = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         next_Load = int(load_output[i])
-        wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
-        load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
+        #wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
+        #load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
         ##adjust_dc(next_dc)
+        solar_spi = (int(round(solar_SPI[start_point + i])))
+        print("Wind input:      ", wind_output[i], "  Solar input: ", solar_output[i])
+        print("Wind duty cycle: ", next_Wind, "      Solar SPI:   ", solar_spi)
         #write_pot(int(round(solar_SPI[start_point + i])))
         '''
         print("Current Time: ", time_array[i])
