@@ -143,7 +143,12 @@ static void ADCTask(void *pvParameters)
 					//UARTprintf("Freq %d\n", zeroCount );
 					zeroCount = 0;
 				}
-	} 
+				result = (sum * 3300) / 4095;
+				UARTprintf("RMS Voltage %d, ", (result * 62876/ 10000) );
+		}			 
+}
+
+int sqrt(int input) {
 	
 	
     // Loop forever.
