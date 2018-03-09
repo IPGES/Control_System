@@ -41,7 +41,7 @@
 #include "interpreter.h"
 #include "spi_task.h"
 #include "controls.h"
-//#include "gpio_task.h"
+#include "gpio_task.h"
 
 //*****************************************************************************
 //
@@ -198,11 +198,11 @@ int main(void)
         }
     }   
 
-	/*	 if(SPITaskInit() != 0) {
+		 if(SPITaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, SPITaskInit Failed.\n");
         }
-    } */ 
+    } 
 		
 		
 		if(InterpreterTaskInit() != 0) {

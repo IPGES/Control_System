@@ -27,3 +27,4 @@
 .\rvmdk\main.o: interpreter.h
 .\rvmdk\main.o: spi_task.h
 .\rvmdk\main.o: controls.h
+.\rvmdk\main.o: gpio_task.h

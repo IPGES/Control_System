@@ -490,6 +490,11 @@
               <FileType>1</FileType>
               <FilePath>.\controls.c</FilePath>
             </File>
+            <File>
+              <FileName>gpio_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\gpio_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
