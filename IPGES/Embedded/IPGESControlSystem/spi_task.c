@@ -91,6 +91,7 @@ static void SPITask(void *pvParameters)
 		UARTprintf("SPI Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
     portTickType ui32WakeTime;
+		int output = 0;
 
 		//
     // Read any residual data from the SSI port.  This makes sure the receive
@@ -109,14 +110,17 @@ static void SPITask(void *pvParameters)
     ui32WakeTime = xTaskGetTickCount();
     //char uartInput[20]; 
 	
-	  pui32DataTx[0] = 128;
-    //pui32DataTx[1] = '0';
+	  pui32DataTx[0] = 0;
+    //pui32DataTx[1] = 128;
     //pui32DataTx[2] = 0;
 		
     // Loop forever.
     while(1)
     {  
-			
+			//pui32DataTx[0] = output;
+			//output++;
+			//output = output % 129;
+		
 			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
 			{
 					//
@@ -135,7 +139,7 @@ static void SPITask(void *pvParameters)
         //
         // Wait for the required amount of time.
         //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
+        vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); 
     } //forever loop 
 }
 
@@ -158,7 +162,7 @@ uint32_t SPITaskInit(void)
 								 GPIO_PIN_2);
 	
 		SSIConfigSetExpClk(SSI0_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
-									 SSI_MODE_MASTER, 976000, 8); // 1000000
+									 SSI_MODE_MASTER, 976000, 16); // 1000000
 	
 		SSIEnable(SSI0_BASE);
 	

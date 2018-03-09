@@ -8,11 +8,14 @@ Project File Date:  03/09/2018
 
 <h2>Output:</h2>
 Build target 'freertos_demo'
-compiling main.c...
+compiling spi_task.c...
+spi_task.c(94): warning:  #177-D: variable "output" was declared but never referenced
+                int output = 0;
+spi_task.c: 1 warning, 0 errors
 linking...
-Program Size: Code=10060 RO-data=1592 RW-data=1644 ZI-data=30980  
+Program Size: Code=10056 RO-data=1592 RW-data=1644 ZI-data=30980  
 After Build - User command #1: fromelf --bin --output .\rvmdk\freertos_demo.bin .\rvmdk\freertos_demo.axf
-".\rvmdk\freertos_demo.axf" - 0 Error(s), 0 Warning(s).
+".\rvmdk\freertos_demo.axf" - 0 Error(s), 1 Warning(s).
 Load "C:\\Users\\Jiahan Liu\\Documents\\Projects\\IPGES_Control_System\\IPGES\\Embedded\\IPGESControlSystem\\rvmdk\\freertos_demo.axf" 
 Connecting: Mode=JTAG, Speed=1000000Hz
 Erase Done.
@@ -21,3 +24,13 @@ Verify OK.
 </pre>
 </body>
 </html>
+ode=JTAG, Speed=1000000Hz
+Erase Done.
+Programming Done.
+Verify OK.
+bedded\IPGESControlSystem\rvmdk\freertos_demo.axf'
+u\\Documents\\Projects\\IPGES_Control_System\\IPGES\\Embedded\\IPGESControlSystem\\rvmdk\\freertos_demo.axf" 
+Connecting: Mode=JTAG, Speed=1000000Hz
+Erase Done.
+Programming Done.
+Verify OK.
