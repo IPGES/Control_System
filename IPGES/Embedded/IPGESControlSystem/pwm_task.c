@@ -1,24 +1,10 @@
 //*****************************************************************************
 //
-// led_task.c - A simple flashing LED task.
+// pwm_task.c - PWM for variable load chopper, and wind.
 //
-// Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+// PB4 (PWM1 - Wind)
+// PB6 (PWM0 - Load)
+// PB7 (PWM0 - Load)
 //
 //*****************************************************************************
 
@@ -43,7 +29,6 @@
 #include "hw_ints.h" //for INT_TIMER2A
 #include "pin_map.h" //for GPIO_PB6_M0PWM0
 
-
 #define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508))
 //*****************************************************************************
 //
@@ -62,7 +47,7 @@
 
 //*****************************************************************************
 //
-// The item size and queue size for the message queue.
+// The item size and queue size for the message queue. (Not Used)
 //
 //*****************************************************************************
 #define PWM_ITEM_SIZE           sizeof(uint8_t)
@@ -75,8 +60,6 @@
 //*****************************************************************************
 xQueueHandle g_pPwmQueue;
 
-
-
 extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 //
@@ -87,29 +70,29 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 static void PWMTask(void *pvParameters)
 {
+		portTickType ui32WakeTime;
+		
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("PWM Init\n");
-	
 		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
 
-    // Get the current tick count.
+    // Get the current tick count, used for vTaskDelayUntil();
     ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
 
     // Loop forever.
     while(1)
     {  
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
+			//
+			// Scheduler Sleeps
+			//
+			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
     } //forever loop
 }
 
 //*****************************************************************************
 //
-// Initializes the PWM task to output a PWM to PB6 and it's complement to PB7.
+// Initializes the PWM0 to output to PB6 and it's complement to PB7 
+// for load. Then PWM1 to output to PB4 for wind.
 //
 //*****************************************************************************
 uint32_t PWMTaskInit(void)
@@ -127,7 +110,6 @@ uint32_t PWMTaskInit(void)
     GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
  
-	
 		//SysCtlPWMClockSet(SYSCTL_PWMDIV_1); //set PWM clock to processor clock with multiplier of 1
 		//SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
     //SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
@@ -150,11 +132,10 @@ uint32_t PWMTaskInit(void)
     PWMOutputState(PWM0_BASE, PWM_OUT_2_BIT, true);
     //PWMOutputInvert(PWM0_BASE, PWM_OUT_1_BIT, true);
     PWMDeadBandEnable(PWM0_BASE, PWM_GEN_1, 0xF, 0xF);
-    GPIO_PORTB_DR8R_R |=0xC0; //The chopper driver must have 8mA output
+    GPIO_PORTB_DR8R_R |=0xC0; // 8mA output
     PWMGenEnable(PWM0_BASE, PWM_GEN_1);
 	
-	
-    /* Used for more intense signals
+    /* Used for more complex signals
     PWMIntEnable(PWM0_BASE, PWM_INT_GEN_0); 
     IntMasterEnable();
     PWMGenIntTrigEnable(PWM0_BASE, PWM_GEN_0, PWM_INT_CNT_LOAD);
@@ -171,12 +152,12 @@ uint32_t PWMTaskInit(void)
     return(0);
 }
 
-void PWM_duty_change_chopper(int dutyCycle) {
+void PWM_change_duty_chopper(int dutyCycle) {
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500* dutyCycle/100);
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2500* dutyCycle/100);
 }
 
-void PWM_duty_change_wind(int dutyCycle) {
+void PWM_change_duty_wind(int dutyCycle) {
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, 2500* dutyCycle/100);
 }
 

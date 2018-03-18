@@ -100,7 +100,7 @@ static void InterpreterTask(void *pvParameters)
 				case 'P': //PWM 50
 					dutyCycle = (uartInput[4] - 48) * 10 + uartInput[5] - 48;
 					if(0 <= dutyCycle && dutyCycle <= 99) {
-						PWM_duty_change_chopper(dutyCycle);
+						PWM_change_duty_chopper(dutyCycle);
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 						UARTprintf("Duty cycle between 0-99 inclusive.\n");
@@ -123,10 +123,8 @@ static void InterpreterTask(void *pvParameters)
 //*****************************************************************************
 uint32_t InterpreterTaskInit(void)
 {
-	
     // Create a queue for sending messages to the LED task.
     //g_pLEDQueue = xQueueCreate(ADC_QUEUE_SIZE, ADC_ITEM_SIZE);
-		
 	
     /* Used for more intense signals
     PWMIntEnable(PWM0_BASE, PWM_INT_GEN_0); 

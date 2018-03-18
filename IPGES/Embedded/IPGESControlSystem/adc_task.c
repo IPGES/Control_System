@@ -119,7 +119,8 @@ static void ADCTask(void *pvParameters)
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
 		int timeOut = 0xffff;
-	
+		int result;
+		int sum;
 	
 		while(1) {
 			 if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
@@ -144,13 +145,13 @@ static void ADCTask(void *pvParameters)
 					zeroCount = 0;
 				}
 				result = (sum * 3300) / 4095;
-				UARTprintf("RMS Voltage %d, ", (result * 62876/ 10000) );
+				//UARTprintf("RMS Voltage %d, ", (result * 62876/ 10000) );
 		}			 
 }
 
 int sqrt(int input) {
 	
-	
+		return 0;
     // Loop forever.
     /*while(1)
     {  
