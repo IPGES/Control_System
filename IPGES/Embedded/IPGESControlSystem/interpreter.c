@@ -97,10 +97,20 @@ static void InterpreterTask(void *pvParameters)
 				case 'A':
 					ADC_Print();
 					break;
-				case 'L': //PWM 50
+				case 'L': //PWM for Chopper Load
 					dutyCycle = (uartInput[5] - 48) * 10 + uartInput[6] - 48;
 					if(0 <= dutyCycle && dutyCycle <= 99) {
 						PWM_change_duty_chopper(dutyCycle);
+					} else {
+						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+						UARTprintf("Duty cycle must be between 0-99 inclusive.\n");
+						xSemaphoreGive(g_pUARTSemaphore);
+					}
+					break;
+				case 'W': //PWM for Wind
+					dutyCycle = (uartInput[5] - 48) * 10 + uartInput[6] - 48;
+					if(0 <= dutyCycle && dutyCycle <= 99) {
+						PWM_change_duty_wind(dutyCycle);
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 						UARTprintf("Duty cycle must be between 0-99 inclusive.\n");

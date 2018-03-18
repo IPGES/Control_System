@@ -1,24 +1,6 @@
 //*****************************************************************************
 //
-// led_task.c - A simple flashing LED task.
-//
-// Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+// gpio_task.c - Task for switching breaker.
 //
 //*****************************************************************************
 
@@ -64,38 +46,31 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 static void GPIOTask(void *pvParameters)
 {
+		
+	portTickType ui32WakeTime;
+	
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("GPIO Init\n");
+	xSemaphoreGive(g_pUARTSemaphore);
 
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("GPIO Init\n");
-		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
+	// Get the current tick count.
+	ui32WakeTime = xTaskGetTickCount();
 	
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
-
-	
-		uint16_t input = 0;
-	
-	
-    // Loop forever.
-    while(1)
-    {  
-				GPIO_PB2_SET_HIGH();
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
-			GPIO_PB2_SET_LOW();
-			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
-    }  //forever loop 
+	// Loop forever.
+	while(1)
+	{  
+		GPIO_PB2_set_high();
+		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
+		GPIO_PB2_set_low();
+		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
+	}  //forever loop 
 }
 
-void GPIO_PB2_SET_HIGH(void) {
+void GPIO_PB2_set_high(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 }
 
-void GPIO_PB2_SET_LOW(void) {
+void GPIO_PB2_set_low(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
 }
 
@@ -109,6 +84,7 @@ uint32_t GPIOTaskInit(void)
 	SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+	
     // Create the task.
     if(xTaskCreate(GPIOTask, (const portCHAR *)"GPIO", GPIOSTASKSTACKSIZE, NULL,
                    tskIDLE_PRIORITY + PRIORITY_GPIO_TASK, NULL) != pdTRUE) 

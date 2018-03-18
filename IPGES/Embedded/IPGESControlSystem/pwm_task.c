@@ -82,10 +82,7 @@ static void PWMTask(void *pvParameters)
     // Loop forever.
     while(1)
     {  
-			//
-			// Scheduler Sleeps
-			//
-			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
+			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Scheduler Sleeps
     } //forever loop
 }
 
