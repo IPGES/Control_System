@@ -16,6 +16,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "spi_task.h"
 
 #include "driverlib/gpio.h"
 #include "driverlib/ssi.h"
@@ -59,62 +60,76 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 //
 //*****************************************************************************
 
+uint32_t pui32DataTx[NUM_SSI_DATA];
+uint32_t ui32Index;
 static void SPITask(void *pvParameters)
 {
-		uint32_t pui32DataTx[NUM_SSI_DATA];
-    uint32_t pui32DataRx[NUM_SSI_DATA];
-    uint32_t ui32Index;
-	   
-		portTickType ui32WakeTime;
-	
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("SPI Init\n");
-		xSemaphoreGive(g_pUARTSemaphore);
+	uint32_t pui32DataRx[NUM_SSI_DATA];
+	 
+	portTickType ui32WakeTime;
 
+	int output = 0;
+	
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("SPI Init\n");
+	xSemaphoreGive(g_pUARTSemaphore);
+
+	//
+	// Read any residual data from the SSI port.  This makes sure the receive
+	// FIFOs are empty, so we don't read any unwanted junk.  This is done here
+	// because the SPI SSI mode is full-duplex, which allows you to send and
+	// receive at the same time.  The SSIDataGetNonBlocking function returns
+	// "true" when data was returned, and "false" when no data was returned.
+	// The "non-blocking" function checks if there is any data in the receive
+	// FIFO and does not "hang" if there isn't.
+	//
+	while(SSIDataGetNonBlocking(SSI0_BASE, &pui32DataRx[0]))
+	{
+	}
+
+	// Get the current tick count.
+	ui32WakeTime = xTaskGetTickCount();
+
+	pui32DataTx[0] = 50; //initial value
+	//pui32DataTx[1] = 128;
+	//pui32DataTx[2] = 0;
+	
+	// Loop forever.
+	while(1)
+	{  
+		//pui32DataTx[0] = output;
+		//output++;
+		//output = output % 129;
+		
+		/*
+		for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+		{
+			//
+			// Send the data using the "blocking" put function.  This function
+			// will wait until there is room in the send FIFO before returning.
+			// This allows you to assure that all the data you send makes it into
+			// the send FIFO.
+			//
+			SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+		}
+			vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); //Sleep Scheduler
+		*/
+	} //forever loop 
+}
+
+
+void SPI_change_output(int output) {
+	pui32DataTx[0] = output;
+	for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+	{
 		//
-    // Read any residual data from the SSI port.  This makes sure the receive
-    // FIFOs are empty, so we don't read any unwanted junk.  This is done here
-    // because the SPI SSI mode is full-duplex, which allows you to send and
-    // receive at the same time.  The SSIDataGetNonBlocking function returns
-    // "true" when data was returned, and "false" when no data was returned.
-    // The "non-blocking" function checks if there is any data in the receive
-    // FIFO and does not "hang" if there isn't.
-    //
-		while(SSIDataGetNonBlocking(SSI0_BASE, &pui32DataRx[0]))
-    {
-    }
-	
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
-	
-	  pui32DataTx[0] = 33; //initial value
-    //pui32DataTx[1] = 128;
-    //pui32DataTx[2] = 0;
-		
-    // Loop forever.
-    while(1)
-    {  
-			//pui32DataTx[0] = output;
-			//output++;
-			//output = output % 129;
-		
-			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
-			{
-				//
-				// Test Call
-				//
-				//UARTprintf("'%c' ", pui32DataTx[ui32Index]);
-
-				//
-				// Send the data using the "blocking" put function.  This function
-				// will wait until there is room in the send FIFO before returning.
-				// This allows you to assure that all the data you send makes it into
-				// the send FIFO.
-				//
-				SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
-			}
-        vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); //Sleep Scheduler
-    } //forever loop 
+		// Send the data using the "blocking" put function.  This function
+		// will wait until there is room in the send FIFO before returning.
+		// This allows you to assure that all the data you send makes it into
+		// the send FIFO.
+		//
+		SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+	}
 }
 
 

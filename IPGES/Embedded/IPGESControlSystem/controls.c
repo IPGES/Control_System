@@ -93,15 +93,14 @@ static void ControlsTask(void *pvParameters)
 	
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
 
 	
-		uint16_t input = 0;
+		uint16_t output = 0;
 	
     // Loop forever.
     while(1)
     {  
-		input = ADC_PrintFreq();	
+		//input = ADC_PrintFreq();	
 		
 			/*
 			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);

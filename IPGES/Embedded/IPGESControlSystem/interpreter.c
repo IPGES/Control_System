@@ -36,7 +36,7 @@
 #include "semphr.h"
 #include "adc_task.h"
 #include "pwm_task.h"
-
+#include "spi_task.h"
 
 //*****************************************************************************
 //
@@ -83,6 +83,7 @@ static void InterpreterTask(void *pvParameters)
 	
 		int loadDutyCycle;
 		int windDutyCycle;
+		int pvValue;
 
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
@@ -92,8 +93,6 @@ static void InterpreterTask(void *pvParameters)
 	
     while(1)
     {  
-			//ADC_PrintJSON();
-			
 			UARTgets(uartInput, INPUTLENGTH); //note this is blocking, use peek to do non-blocking
 			switch(uartInput[0]) {
 				case 'A': //ADC
@@ -106,6 +105,16 @@ static void InterpreterTask(void *pvParameters)
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 						UARTprintf("Duty cycle must be between 0-100 inclusive and three digits (024 = 24).\n");
+						xSemaphoreGive(g_pUARTSemaphore);
+					}
+					break;
+				case 'P': //PV 099
+					pvValue = (uartInput[3] - 48) * 100 + (uartInput[4] - 48) * 10 + uartInput[5] - 48;
+					if(0 <= pvValue && pvValue <= 128) {
+						SPI_change_output(pvValue);
+					} else {	
+						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+						UARTprintf("PV must be between 0-128 inclusive and three digits (024 = 24).\n");
 						xSemaphoreGive(g_pUARTSemaphore);
 					}
 					break;
@@ -127,7 +136,7 @@ static void InterpreterTask(void *pvParameters)
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
 	}
 }
-
+//		SPI_change_output(output);
 //*****************************************************************************
 //
 // Initializes the LED task.
