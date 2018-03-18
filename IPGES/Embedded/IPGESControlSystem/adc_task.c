@@ -88,152 +88,79 @@ void Timer2IntHandler(void);
 void Timer0IntHandler(void);
 void clearAdcData (AdcData_t *data);
 void setAdcData (AdcData_t *data);
+int sqrt(int input);
+int undo_signal_conditioning(int input);
 
 #define SAMPLES_PER_SEC 1000
-#define ARRAY_SIZE 500 //250
+#define ARRAY_SIZE 250 //250
 AdcData_t *adcRawInput;
 uint16_t adc_input_index = 0;
 
-static AdcData_t max;
-static AdcData_t min;
-static AdcData_t rms;
+static uint32_t v_rms;
 
 xSemaphoreHandle arrayFull;
-
-static uint16_t prevPosition = 0;
-static uint16_t currPosition = 0;
-static uint16_t zeroCount = 0;
-#define ZERO_POINT 1997
-static uint16_t AC_freq = 0;
 
 unsigned long adcCount = 0; //debug
 
 static void ADCTask(void *pvParameters)
 {
+		int timeOut = 0xffff;
+		int result = 0;
+		int sum = 0;;
+	
 		// Print the current loggling LED and frequency.
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
     UARTprintf("ADC Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
 
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
-		int timeOut = 0xffff;
-		int result;
-		int sum;
-	
 		while(1) {
-			 if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
-					if(adcRawInput[0].PE0 < ZERO_POINT) {
-						prevPosition = 0;
-					} else {
-						prevPosition = 1;
-					}
-					for(int i = 1; i < ARRAY_SIZE; i++) {
-						if(adcRawInput[i].PE0 < ZERO_POINT) { //get current position
-							currPosition = 0;
-						} else {
-							currPosition = 1;
-						}
-						if(prevPosition != currPosition) {
-							zeroCount++;
-						}
-						prevPosition = currPosition;
-					}
-					AC_freq = zeroCount;
-					//UARTprintf("Freq %d\n", zeroCount );
-					zeroCount = 0;
-				}
-				result = (sum * 3300) / 4095;
-				//UARTprintf("RMS Voltage %d, ", (result * 62876/ 10000) );
-		}			 
+       if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
+          for(int i = 0; i < ARRAY_SIZE; i++) {
+            sum += (adcRawInput[i].PE0 * adcRawInput[i].PE0) / 100;
+            //UARTprintf("%d, ", (adcRawInput[i].PE0 * 3300) / (4095) );
+          }
+          sum /= ARRAY_SIZE;
+          sum = sqrt(sum);
+        }
+        result = (sum * 3300) / 4095;
+				v_rms = undo_signal_conditioning(result);
+				xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+        UARTprintf("RMS Voltage %d, ", undo_signal_conditioning(result) );
+				xSemaphoreGive(g_pUARTSemaphore);
+    }
 }
 
+int undo_signal_conditioning(int input) {
+  return (input * (62876) / 10000);   
+}
 int sqrt(int input) {
-	
-		return 0;
-    // Loop forever.
-    /*while(1)
-    {  
-        if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) //value of 0 used for polling
-        {
-					
-					for(int i = 0; i < ARRAY_SIZE; i++) {
-						if(adcRawInput[i].PE0 > max.PE0) {
-							max.PE0 = adcRawInput[i].PE0;
-						}
-						if(adcRawInput[i].PE0 < min.PE0) {
-							min.PE0 = adcRawInput[i].PE0;
-						}
-						if(adcRawInput[i].PE1 > max.PE1) {
-							max.PE1 = adcRawInput[i].PE1;
-						}
-						if(adcRawInput[i].PE1 < min.PE1) {
-							min.PE1 = adcRawInput[i].PE1;
-						}
-						if(adcRawInput[i].PE2 > max.PE2) {
-							max.PE2 = adcRawInput[i].PE2;
-						}
-						if(adcRawInput[i].PE2 < min.PE2) {
-							min.PE2 = adcRawInput[i].PE2;
-						}
-						if(adcRawInput[i].PE3 > max.PE3) {
-							max.PE3 = adcRawInput[i].PE3;
-						}
-						if(adcRawInput[i].PE3 < min.PE3) {
-							min.PE3 = adcRawInput[i].PE3;
-						}
-					}
-					
-					
-					max.PE0 = (max.PE0 * 3300)/4095;
-					max.PE1 = (max.PE1 * 3300)/4095;
-					max.PE2 = (max.PE2 * 3300)/4095;					
-					max.PE3 = (max.PE3 * 3300)/4095;
-					
-					min.PE0 = (min.PE0 * 3300)/4095;
-					min.PE1 = (min.PE1 * 3300)/4095;
-					min.PE2 = (min.PE2 * 3300)/4095;					
-					min.PE3 = (min.PE3 * 3300)/4095;
-					
-					
-					rms.PE0 = (((max.PE0 - min.PE0) * 50)/141);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
-					rms.PE1 = (((max.PE1 - min.PE1) * 50)/141); 
-					rms.PE2 = (((max.PE2 - min.PE2) * 50)/141); 
-					rms.PE3 = (((max.PE3 - min.PE3) * 50)/141); 
-					
-					
-					rms.PE0 = (max.PE0 - min.PE0);  //fixed point decimal calculations since floating point kills CPU time. We are approximating anyway since our signal conditioning boards don't do RMS
-					rms.PE1 = (max.PE1 - min.PE1); 
-					rms.PE2 = (max.PE2 - min.PE2); 
-					rms.PE3 = (max.PE3 - min.PE3);
-					
-					//ADC_Print();
-					ADC_PrintJSON();
-					setAdcData(&min);
-					clearAdcData(&max);
-					//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-					//UARTprintf("adcCount: %d\n", adcCount);
-					//xSemaphoreGive(g_pUARTSemaphore);
-        }
-    } //forever loop */
+  
+  int guess = 1650;
+  int guess_sq = 27225;
+  int delta = 820;
+  for(int i = 0; i < 9; i++) {
+    if(input > guess_sq) {
+      guess += delta;
+      guess_sq = (guess / 10) * (guess / 10);
+    } else {
+      guess -= delta;
+      guess_sq = (guess / 10) * (guess / 10);
+    }
+    delta /= 2;
+  }
+  return guess; 
 }
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("Max PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", max.PE3, max.PE2, max.PE1, max.PE0);
-	UARTprintf("Min PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", min.PE3, min.PE2, min.PE1, min.PE0);
+	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", 0, 0, 0, 0);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", rms.PE0, rms.PE1, rms.PE2, rms.PE3, 419);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
 	xSemaphoreGive(g_pUARTSemaphore);
-}
-
-uint16_t ADC_PrintFreq(void) {
-	return AC_freq;
 }
 
 //*****************************************************************************
@@ -288,9 +215,7 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
 		
 		arrayFull = xSemaphoreCreateBinary();
 		
-		setAdcData(&min);
-		clearAdcData(&max);
-		adcRawInput = pvPortMalloc(1000 * sizeof(AdcData_t));
+		adcRawInput = pvPortMalloc(1000 * sizeof(AdcData_t)); //IMPORTANT FOR DEBUGGING
 		
     // Create the task.
     if(xTaskCreate(ADCTask, (const portCHAR *)"ADC", ADCTASKSTACKSIZE, NULL,

@@ -93,23 +93,18 @@ static void ControlsTask(void *pvParameters)
 	
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
-
-	
-		uint16_t output = 0;
 	
     // Loop forever.
     while(1)
     {  
-		//input = ADC_PrintFreq();	
-		
 			/*
 			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
     UARTprintf("Freq %d\n", input);
 		xSemaphoreGive(g_pUARTSemaphore); */
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
+			
+			ADC_PrintJSON(); //needed for UI
+			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); //Sleep Scheduler
+			
     } //forever loop 
 }
 
