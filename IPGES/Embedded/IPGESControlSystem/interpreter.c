@@ -77,16 +77,18 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 static void InterpreterTask(void *pvParameters)
 {
+		portTickType ui32WakeTime;
+    
+		char uartInput[INPUTLENGTH];
+	
+		int loadDutyCycle;
+		int windDutyCycle;
+
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-    char uartInput[INPUTLENGTH];
-		int dutyCycle;
 	
-	  portTickType ui32WakeTime;
-
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
+    ui32WakeTime = xTaskGetTickCount(); // Get the current tick count.
 	
     while(1)
     {  
@@ -94,26 +96,26 @@ static void InterpreterTask(void *pvParameters)
 			
 			UARTgets(uartInput, INPUTLENGTH); //note this is blocking, use peek to do non-blocking
 			switch(uartInput[0]) {
-				case 'A':
+				case 'A': //ADC
 					ADC_Print();
 					break;
-				case 'L': //PWM for Chopper Load
-					dutyCycle = (uartInput[5] - 48) * 10 + uartInput[6] - 48;
-					if(0 <= dutyCycle && dutyCycle <= 99) {
-						PWM_change_duty_chopper(dutyCycle);
+				case 'L': //Load 010
+					loadDutyCycle = (uartInput[5] - 48) * 100 + (uartInput[6] - 48) * 10 + uartInput[7] - 48;
+					if(0 <= loadDutyCycle && loadDutyCycle <= 100) {
+						PWM_change_duty_chopper(loadDutyCycle);
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-						UARTprintf("Duty cycle must be between 0-99 inclusive.\n");
+						UARTprintf("Duty cycle must be between 0-100 inclusive and three digits (024 = 24).\n");
 						xSemaphoreGive(g_pUARTSemaphore);
 					}
 					break;
-				case 'W': //PWM for Wind
-					dutyCycle = (uartInput[5] - 48) * 10 + uartInput[6] - 48;
-					if(0 <= dutyCycle && dutyCycle <= 99) {
-						PWM_change_duty_wind(dutyCycle);
-					} else {
+				case 'W': //Wind 099
+					windDutyCycle = (uartInput[5] - 48) * 100 + (uartInput[6] - 48) * 10 + uartInput[7] - 48;
+					if(0 <= windDutyCycle && windDutyCycle <= 100) {
+						PWM_change_duty_wind(windDutyCycle);
+					} else {	
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-						UARTprintf("Duty cycle must be between 0-99 inclusive.\n");
+						UARTprintf("Duty cycle must be between 0-100 inclusive and three digits (024 = 24).\n");
 						xSemaphoreGive(g_pUARTSemaphore);
 					}
 					break;

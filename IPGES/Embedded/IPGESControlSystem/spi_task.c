@@ -1,24 +1,6 @@
 //*****************************************************************************
 //
-// led_task.c - A simple flashing LED task.
-//
-// Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+// spi_task.c - SPI to talk to Kassandra Smith's SPI to Analog PV controller.
 //
 //*****************************************************************************
 
@@ -41,8 +23,6 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
 
-
-#define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508))
 //*****************************************************************************
 //
 // The stack size for the task.
@@ -72,12 +52,10 @@ xQueueHandle g_pSpiQueue;
 //*****************************************************************************
 #define NUM_SSI_DATA            1
 
-
 extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 //
-// This task toggles the user selected LED at a user selected frequency. User
-// can make the selections by pressing the left and right buttons.
+// 
 //
 //*****************************************************************************
 
@@ -86,12 +64,12 @@ static void SPITask(void *pvParameters)
 		uint32_t pui32DataTx[NUM_SSI_DATA];
     uint32_t pui32DataRx[NUM_SSI_DATA];
     uint32_t ui32Index;
+	   
+		portTickType ui32WakeTime;
 	
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("SPI Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
-		int output = 0;
 
 		//
     // Read any residual data from the SSI port.  This makes sure the receive
@@ -108,9 +86,8 @@ static void SPITask(void *pvParameters)
 	
     // Get the current tick count.
     ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
 	
-	  pui32DataTx[0] = 0;
+	  pui32DataTx[0] = 33; //initial value
     //pui32DataTx[1] = 128;
     //pui32DataTx[2] = 0;
 		
@@ -123,29 +100,28 @@ static void SPITask(void *pvParameters)
 		
 			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
 			{
-					//
-					// Display the data that SSI is transferring.
-					//
-					//UARTprintf("'%c' ", pui32DataTx[ui32Index]);
+				//
+				// Test Call
+				//
+				//UARTprintf("'%c' ", pui32DataTx[ui32Index]);
 
-					//
-					// Send the data using the "blocking" put function.  This function
-					// will wait until there is room in the send FIFO before returning.
-					// This allows you to assure that all the data you send makes it into
-					// the send FIFO.
-					//
-					SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+				//
+				// Send the data using the "blocking" put function.  This function
+				// will wait until there is room in the send FIFO before returning.
+				// This allows you to assure that all the data you send makes it into
+				// the send FIFO.
+				//
+				SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
 			}
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); 
+        vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); //Sleep Scheduler
     } //forever loop 
 }
 
+
+
 //*****************************************************************************
 //
-// Initializes the PWM task to output a PWM to PB6 and it's complement to PB7.
+// Initializes the SPI Task.
 //
 //*****************************************************************************
 uint32_t SPITaskInit(void)

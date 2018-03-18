@@ -29,7 +29,7 @@
 #include "hw_ints.h" //for INT_TIMER2A
 #include "pin_map.h" //for GPIO_PB6_M0PWM0
 
-#define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508))
+#define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508)) //needed for 8mA PWM setting
 //*****************************************************************************
 //
 // The stack size for the task.
@@ -76,6 +76,9 @@ static void PWMTask(void *pvParameters)
 		UARTprintf("PWM Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
 
+		PWM_change_duty_chopper(50);
+		PWM_change_duty_wind(50);
+	
     // Get the current tick count, used for vTaskDelayUntil();
     ui32WakeTime = xTaskGetTickCount();
 
