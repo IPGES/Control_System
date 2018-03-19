@@ -107,6 +107,17 @@ def write_pot(Pot):
     lsb = Pot & 0xFF
     spi.xfer([msb, lsb])
 
+#Write SPI to tm4c -- replaces write_pot
+def write_spi(val):
+    temp = val
+    if val < 10:
+        temp = '0' + str(temp)
+    if (val >= 10) & (val <= 90):
+        temp = '0' + str(temp)
+    print("SPI value being written: ", temp)
+    str1 = ('PP ' + str(temp) + '\n')
+    ser.write(str1.encode())
+
 
 #Increase/Decrease duty cycle one at a time
 def adjust_dc(val):
@@ -127,12 +138,12 @@ def write_dc(val):
         temp = x
         if temp < 10:
             temp = '0' + str(x)
-        str1 = ('PWM ' + str(temp) + '\n')
+        str1 = ('WW ' + str(temp) + '\n')
         ser.write(str1.encode())
         #time.sleep(0.3)
     dc = val
 
-trash = input("Waiting for any input to begin...")
+#trash = input("Waiting for any input to begin...")
 #Main Loop
 #if (ready == "y"):
 
@@ -146,7 +157,7 @@ try:
         next_dc = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         write_dc(next_dc)
         ##adjust_dc(next_dc)
-        #write_pot(int(round(solar_SPI[start_point + i])))
+        write_spi(int(round(solar_SPI[start_point + i])))
         '''
         print("Current Time: ", time_array[i])
         print("Wind Output: ", wind_output[i])

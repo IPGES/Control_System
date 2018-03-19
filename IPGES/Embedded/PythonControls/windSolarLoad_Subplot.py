@@ -13,14 +13,14 @@ s_dc = 0
 l_dc = 0
 
 #Choose Port
-'''
+
 print("These are all the available ports:")
 print(serial_ports())
 portNum = input("Choose a port: ")
 print("You chose: ", portNum)
 ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
 ser.flushInput()
-ser.flushOutput()'''
+ser.flushOutput()
 
 
 #Set entries per day -- we only simulate one day (could change if you increase this)
@@ -125,6 +125,8 @@ def write_pot(Pot):
 
 #write dc to tm4c -- replaces adjust_dc
 def write_dc(cur, next, dest, wait):
+    if(next < 80):
+        next = 80
     increment = (1) if (next > cur) else (-1)
     for x in range(cur, next + increment, increment):
         print(dest + " Duty cycle changing: Currently:  ", x)
@@ -163,7 +165,7 @@ try:
         pyplot.pause(0.01)
         next_Wind = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         next_Load = int(load_output[i])
-        #wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
+        wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
         #load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
         ##adjust_dc(next_dc)
         solar_spi = (int(round(solar_SPI[start_point + i])))
