@@ -8,6 +8,7 @@ from matplotlib import pyplot
 #import spidev
 import time
 import math
+
 '''import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)'''
