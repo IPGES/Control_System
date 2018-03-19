@@ -36,7 +36,7 @@
 #include "semphr.h"
 #include "adc_task.h"
 #include "pwm_task.h"
-
+#include "spi_task.h"
 
 //*****************************************************************************
 //
@@ -77,45 +77,56 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 static void InterpreterTask(void *pvParameters)
 {
+		portTickType ui32WakeTime;
+    
+		char uartInput[INPUTLENGTH];
+	
+		int loadDutyCycle;
+		int windDutyCycle;
+		int pvValue;
+
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
 		xSemaphoreGive(g_pUARTSemaphore);
-    char uartInput[INPUTLENGTH];
-		int dutyCycle;
 	
-	  portTickType ui32WakeTime;
-
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
+    ui32WakeTime = xTaskGetTickCount(); // Get the current tick count.
 	
     while(1)
     {  
-			//ADC_PrintJSON();
-			
 			UARTgets(uartInput, INPUTLENGTH); //note this is blocking, use peek to do non-blocking
 			switch(uartInput[0]) {
-				case 'A':
+				case 'A': //ADC
 					ADC_Print();
 					break;
-				case 'P': //PWM 50
-					dutyCycle = (uartInput[4] - 48) * 10 + uartInput[5] - 48;
-					if(0 <= dutyCycle && dutyCycle <= 99) {
-						PWM_duty_change_wind(dutyCycle);
+				case 'L': //Load 010
+					loadDutyCycle = (uartInput[5] - 48) * 100 + (uartInput[6] - 48) * 10 + uartInput[7] - 48;
+					if(0 <= loadDutyCycle && loadDutyCycle <= 100) {
+						PWM_change_duty_chopper(loadDutyCycle);
 					} else {
 						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-						UARTprintf("Duty cycle between 0-99 inclusive.\n");
+						UARTprintf("Duty cycle must be between 0-100 inclusive and three digits (024 = 24).\n");
 						xSemaphoreGive(g_pUARTSemaphore);
 					}
 					break;
-				case 'L': //Load 50
-				dutyCycle = (uartInput[4] - 48) * 10 + uartInput[5] - 48;
-				if(0 <= dutyCycle && dutyCycle <= 99) {
-					PWM_duty_change_chopper(dutyCycle);
-				} else {
-					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-					UARTprintf("Duty cycle between 0-99 inclusive.\n");
-					xSemaphoreGive(g_pUARTSemaphore);
-				}
+				case 'P': //PV 099
+					pvValue = (uartInput[3] - 48) * 100 + (uartInput[4] - 48) * 10 + uartInput[5] - 48;
+					if(0 <= pvValue && pvValue <= 128) {
+						SPI_change_output(pvValue);
+					} else {	
+						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+						UARTprintf("PV must be between 0-128 inclusive and three digits (024 = 24).\n");
+						xSemaphoreGive(g_pUARTSemaphore);
+					}
+					break;
+				case 'W': //Wind 099
+					windDutyCycle = (uartInput[5] - 48) * 100 + (uartInput[6] - 48) * 10 + uartInput[7] - 48;
+					if(0 <= windDutyCycle && windDutyCycle <= 100) {
+						PWM_change_duty_wind(windDutyCycle);
+					} else {	
+						xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+						UARTprintf("Duty cycle must be between 0-100 inclusive and three digits (024 = 24).\n");
+						xSemaphoreGive(g_pUARTSemaphore);
+					}
 					break;
 				default :
 					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -125,7 +136,7 @@ static void InterpreterTask(void *pvParameters)
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS);
 	}
 }
-
+//		SPI_change_output(output);
 //*****************************************************************************
 //
 // Initializes the LED task.
@@ -133,17 +144,8 @@ static void InterpreterTask(void *pvParameters)
 //*****************************************************************************
 uint32_t InterpreterTaskInit(void)
 {
-	
     // Create a queue for sending messages to the LED task.
     //g_pLEDQueue = xQueueCreate(ADC_QUEUE_SIZE, ADC_ITEM_SIZE);
-		
-	
-    /* Used for more intense signals
-    PWMIntEnable(PWM0_BASE, PWM_INT_GEN_0); 
-    IntMasterEnable();
-    PWMGenIntTrigEnable(PWM0_BASE, PWM_GEN_0, PWM_INT_CNT_LOAD);
-    IntEnable(INT_PWM0_0);
-     */
 
     // Create the task.
     if(xTaskCreate(InterpreterTask, (const portCHAR *)"Interpreter", INTERPRETERTASKSTACKSIZE, NULL,
@@ -151,6 +153,6 @@ uint32_t InterpreterTaskInit(void)
     {
         return(1);
     }
-    
+		//Success
     return(0);
 }

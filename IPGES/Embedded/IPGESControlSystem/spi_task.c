@@ -1,24 +1,6 @@
 //*****************************************************************************
 //
-// led_task.c - A simple flashing LED task.
-//
-// Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+// spi_task.c - SPI to talk to Kassandra Smith's SPI to Analog PV controller.
 //
 //*****************************************************************************
 
@@ -34,6 +16,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "spi_task.h"
 
 #include "driverlib/gpio.h"
 #include "driverlib/ssi.h"
@@ -41,8 +24,6 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
 
-
-#define GPIO_PORTB_DR8R_R       (*((volatile uint32_t *)0x40005508))
 //*****************************************************************************
 //
 // The stack size for the task.
@@ -72,76 +53,90 @@ xQueueHandle g_pSpiQueue;
 //*****************************************************************************
 #define NUM_SSI_DATA            1
 
-
 extern xSemaphoreHandle g_pUARTSemaphore;
 //*****************************************************************************
 //
-// This task toggles the user selected LED at a user selected frequency. User
-// can make the selections by pressing the left and right buttons.
+// 
 //
 //*****************************************************************************
 
+uint32_t pui32DataTx[NUM_SSI_DATA];
+uint32_t ui32Index;
 static void SPITask(void *pvParameters)
 {
-		uint32_t pui32DataTx[NUM_SSI_DATA];
-    uint32_t pui32DataRx[NUM_SSI_DATA];
-    uint32_t ui32Index;
-	
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("SPI Init\n");
-		xSemaphoreGive(g_pUARTSemaphore);
-    portTickType ui32WakeTime;
+	uint32_t pui32DataRx[NUM_SSI_DATA];
+	 
+	portTickType ui32WakeTime;
 
-		//
-    // Read any residual data from the SSI port.  This makes sure the receive
-    // FIFOs are empty, so we don't read any unwanted junk.  This is done here
-    // because the SPI SSI mode is full-duplex, which allows you to send and
-    // receive at the same time.  The SSIDataGetNonBlocking function returns
-    // "true" when data was returned, and "false" when no data was returned.
-    // The "non-blocking" function checks if there is any data in the receive
-    // FIFO and does not "hang" if there isn't.
-    //
-		while(SSIDataGetNonBlocking(SSI0_BASE, &pui32DataRx[0]))
-    {
-    }
+	int output = 0;
 	
-    // Get the current tick count.
-    ui32WakeTime = xTaskGetTickCount();
-    //char uartInput[20]; 
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("SPI Init\n");
+	xSemaphoreGive(g_pUARTSemaphore);
+
+	//
+	// Read any residual data from the SSI port.  This makes sure the receive
+	// FIFOs are empty, so we don't read any unwanted junk.  This is done here
+	// because the SPI SSI mode is full-duplex, which allows you to send and
+	// receive at the same time.  The SSIDataGetNonBlocking function returns
+	// "true" when data was returned, and "false" when no data was returned.
+	// The "non-blocking" function checks if there is any data in the receive
+	// FIFO and does not "hang" if there isn't.
+	//
+	while(SSIDataGetNonBlocking(SSI0_BASE, &pui32DataRx[0]))
+	{
+	}
+
+	// Get the current tick count.
+	ui32WakeTime = xTaskGetTickCount();
+
+	pui32DataTx[0] = 50; //initial value
+	//pui32DataTx[1] = 128;
+	//pui32DataTx[2] = 0;
 	
-	  pui32DataTx[0] = 128;
-    //pui32DataTx[1] = '0';
-    //pui32DataTx[2] = 0;
+	// Loop forever.
+	while(1)
+	{  
+		//pui32DataTx[0] = output;
+		//output++;
+		//output = output % 129;
 		
-    // Loop forever.
-    while(1)
-    {  
-			
-			for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
-			{
-					//
-					// Display the data that SSI is transferring.
-					//
-					//UARTprintf("'%c' ", pui32DataTx[ui32Index]);
-
-					//
-					// Send the data using the "blocking" put function.  This function
-					// will wait until there is room in the send FIFO before returning.
-					// This allows you to assure that all the data you send makes it into
-					// the send FIFO.
-					//
-					SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
-			}
-        //
-        // Wait for the required amount of time.
-        //
-        vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); 
-    } //forever loop 
+		/*
+		for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+		{
+			//
+			// Send the data using the "blocking" put function.  This function
+			// will wait until there is room in the send FIFO before returning.
+			// This allows you to assure that all the data you send makes it into
+			// the send FIFO.
+			//
+			SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+		}
+			vTaskDelayUntil(&ui32WakeTime, 100 / portTICK_RATE_MS); //Sleep Scheduler
+		*/
+	} //forever loop 
 }
+
+
+void SPI_change_output(int output) {
+	pui32DataTx[0] = output;
+	for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+	{
+		//
+		// Send the data using the "blocking" put function.  This function
+		// will wait until there is room in the send FIFO before returning.
+		// This allows you to assure that all the data you send makes it into
+		// the send FIFO.
+		//
+		SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+	}
+}
+
+
 
 //*****************************************************************************
 //
-// Initializes the PWM task to output a PWM to PB6 and it's complement to PB7.
+// Initializes the SPI Task.
 //
 //*****************************************************************************
 uint32_t SPITaskInit(void)
@@ -158,7 +153,7 @@ uint32_t SPITaskInit(void)
 								 GPIO_PIN_2);
 	
 		SSIConfigSetExpClk(SSI0_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
-									 SSI_MODE_MASTER, 976000, 8); // 1000000
+									 SSI_MODE_MASTER, 976000, 16); // 1000000
 	
 		SSIEnable(SSI0_BASE);
 	

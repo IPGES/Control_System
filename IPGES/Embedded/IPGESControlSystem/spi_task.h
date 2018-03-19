@@ -31,5 +31,6 @@
 //
 //*****************************************************************************
 uint32_t SPITaskInit(void);
+void SPI_change_output(int output);
 
 #endif // __SPI_TASK_H__
