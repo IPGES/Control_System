@@ -124,9 +124,10 @@ static void ADCTask(void *pvParameters)
         }
         result = (sum * 3300) / 4095;
 				v_rms = undo_signal_conditioning(result);
+				/*
 				xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
         UARTprintf("RMS Voltage %d, ", undo_signal_conditioning(result) );
-				xSemaphoreGive(g_pUARTSemaphore);
+				xSemaphoreGive(g_pUARTSemaphore);*/
     }
 }
 
