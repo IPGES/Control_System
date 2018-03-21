@@ -9,6 +9,10 @@ from matplotlib import pyplot
 import time
 import math
 import datetime
+import re
+from requestExpress import post_to_express
+import threading
+import sys
 
 #Write SPI to tm4c -- replaces write_pot
 def write_spi(val, ser):
@@ -87,5 +91,49 @@ def run(ser):
     write_loop(entries_per_day, wind_output, scale_factor, solar_SPI, start_point, ser)
 
 
+def toCloud(ser):
+    while True:
+        while True:
+            tm4cIn = ser.readline() #comes in as bytes and has b' as a header
+            #print(str(tm4cIn))
+            parsedTm4c = str(tm4cIn).rsplit('b\'')[1].rsplit('\\r\\n')[0]
+            print(parsedTm4c)
+            timeRecieved = datetime.datetime.now()
+            timeValue = timeRecieved.hour * 100 + timeRecieved.minute
+            pvValue = parsedTm4c.split("\"pv\" : ")[1].split(',')[0]
+            inverterValue = parsedTm4c.split("\"inverter\" : ")[1].split(',')[0]
+            windValue = parsedTm4c.split("\"wind\" : ")[1].split(',')[0]
+            gridValue = parsedTm4c.split("\"grid\" : ")[1].split(',')[0]
+            loadValue = parsedTm4c.split("\"load\" : ")[1].split(',')[0]
+            print(timeValue, " " ,pvValue, " ", pvValue, " ", inverterValue, " ", windValue, " ", gridValue, " ", loadValue) 
+            if(parsedTm4c[0] == '@'):
+                post_to_express(timeValue, pvValue, inverterValue, inverterValue, gridValue, loadValue)
+                break
+        print("Done")
+    ser.close()
+
+
+if __name__ == "__main__":
+    URL = "https://damp-gorge-19491.herokuapp.com"
+    URL += "/tm4cInput"
+
+    #Choose Port
+    print("These are all the available ports:")
+    print(serial_ports())
+    portNum = input("Choose a port: ")
+    print("You chose: ", portNum)
+
+
+    ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
+    ser.flushInput()
+    ser.flushOutput()
+    try:
+        t1 = threading.Thread(target=run, args=(ser,))
+        t2 = threading.Thread(target=toCloud, args=(ser,))
+        t1.start()
+        t2.start()
+    except KeyboardInterrupt:
+        print("Interrupted")
+        sys.exit(0)
 
 
