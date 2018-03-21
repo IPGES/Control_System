@@ -33,7 +33,7 @@ def write_dc(dc, val, ser):
         temp = x
         if temp < 10:
             temp = '0' + str(x)
-        str1 = ('WW ' + str(temp) + '\n')
+        str1 = ('W ' + str(temp) + '\n')
         ser.write(str1.encode())
         time.sleep(0.3)
     return val
@@ -44,7 +44,7 @@ def write_loop(entries_per_day, wind_output, scale_factor, solar_SPI, start_poin
     for i in range(0, entries_per_day):
         next_dc = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         dc = write_dc(dc, next_dc, ser)
-        write_spi(int(round(solar_SPI[start_point + i])), ser)
+        #write_spi(int(round(solar_SPI[start_point + i])), ser)
         '''
         print("Current Time: ", time_array[i])
         print("Wind Output: ", wind_output[i])
@@ -97,6 +97,8 @@ def toCloud(ser):
             tm4cIn = ser.readline() #comes in as bytes and has b' as a header
             #print(str(tm4cIn))
             parsedTm4c = str(tm4cIn).rsplit('b\'')[1].rsplit('\\r\\n')[0]
+            if(parsedTm4c[0] != '@'):
+                break;
             print(parsedTm4c)
             timeRecieved = datetime.datetime.now()
             timeValue = timeRecieved.hour * 100 + timeRecieved.minute
@@ -131,6 +133,7 @@ if __name__ == "__main__":
         t1 = threading.Thread(target=run, args=(ser,))
         t2 = threading.Thread(target=toCloud, args=(ser,))
         t1.start()
+        time.sleep(10)
         t2.start()
     except KeyboardInterrupt:
         print("Interrupted")
