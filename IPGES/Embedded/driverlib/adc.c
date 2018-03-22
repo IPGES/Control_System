@@ -1166,7 +1166,7 @@ ADCSoftwareOversampleDataGet(uint32_t ui32Base, uint32_t ui32SequenceNum,
 //!
 //! Hardware oversampling applies uniformly to all sample sequencers.  It does
 //! not reduce the depth of the sample sequencers like the software
-//! oversampling APIs; each sample written into the sample sequencer FIFO is a
+//! oversampling APIs; each sample written into the sample sequencer FIFO isa
 //! fully oversampled analog input reading.
 //!
 //! Enabling hardware averaging increases the precision of the ADC at the cost

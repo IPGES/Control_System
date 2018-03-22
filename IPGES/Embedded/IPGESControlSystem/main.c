@@ -137,7 +137,7 @@ void ConfigureUART(void)
     UARTStdioConfig(0, 115200, 16000000);
 }
 
-void Producer(AdcData_t pDataStruct) {
+void Producer() {
 
 }
 
@@ -150,7 +150,7 @@ int main(void)
 {
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ |
                        SYSCTL_OSC_MAIN); // Set the clocking to run at 50 MHz from the PLL. I think this is actually 80 MHz
-
+	
     ConfigureUART(); //Initialize the UART and configure it for 115,200 badrate, 8-N-1 operation.
 
     UARTprintf("Jiahan Liu, Julia Conger, Joshua Graham, Kassandra Smith\nBraden Stotmeister, Madeline Jasper\n");

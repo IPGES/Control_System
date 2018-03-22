@@ -1,24 +1,6 @@
 //*****************************************************************************
 //
-// led_task.c - A simple flashing LED task.
-//
-// Copyright (c) 2012-2017 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+// adc_task.c - A simple flashing LED task.
 //
 //*****************************************************************************
 
@@ -56,8 +38,11 @@
 // ADC Init Macros
 //
 //*****************************************************************************
-#define ADC_SEQUENCE2           2
-#define ADC_SEQUENCE2_PRIORITY  2
+#define ADC_SEQUENCE0           0
+//#define ADC_SEQUENCE2           2
+
+//#define ADC_SEQUENCE2_PRIORITY  1
+#define ADC_SEQUENCE0_PRIORITY  0
 
 //*****************************************************************************
 //
@@ -82,12 +67,13 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 //
 
 //*****************************************************************************
-void (*ProducerTask)(AdcData_t pDataStruct);  
-void ADC0Seq2_Handler(void);
-void Timer2IntHandler(void);
-void Timer0IntHandler(void);
-void clearAdcData (AdcData_t *data);
-void setAdcData (AdcData_t *data);
+void (*ProducerTask)();  
+//void ADC0Seq2_Handler(void);
+void ADC0Seq0_Handler(void);
+//void Timer2IntHandler(void);
+//void Timer0IntHandler(void);
+void clearAdcData (AdcSS0Data *data);
+void setAdcData (AdcSS0Data *data);
 int sqrt(int input);
 int undo_signal_conditioning(int input);
 
@@ -95,14 +81,16 @@ int undo_signal_conditioning(int input);
 #define scb_factor 11
 #define transformer_factor 5
 
-#define SAMPLES_PER_SEC 1000
+#define SAMPLES_PER_SEC 1000 //sampling too many times causes contention between the two sequencers
 #define ARRAY_SIZE 250 //250
-AdcData_t *adcRawInput;
-uint16_t adc_input_index = 0;
-
+AdcSS0Data *adcRawSS0Input;
+//AdcSS2Data *adcRawSS2Input;
+//uint16_t adc_ss2_index = 0;
+uint16_t adc_ss0_index = 0;
 static uint32_t v_rms;
 
-xSemaphoreHandle arrayFull;
+//xSemaphoreHandle ss2Full;
+xSemaphoreHandle ss0Full;
 
 unsigned long adcCount = 0; //debug
 
@@ -118,14 +106,14 @@ static void ADCTask(void *pvParameters)
 		xSemaphoreGive(g_pUARTSemaphore);
 
 		while(1) {
-       if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
+       if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
           for(int i = 0; i < ARRAY_SIZE; i++) {
-						//UARTprintf("%d, ", (adcRawInput[i].PE0 * 3300) / (4095) );
-						int shifted_adc = adcRawInput[i].PE0 - scb_mean; //fix point calculations
+						//UARTprintf("%d, ", (adcRawSS2Input[i].PE0 * 3300) / (4095) );
+						int shifted_adc = adcRawSS0Input[i].PE0 - scb_mean; //fix point calculations
 						//UARTprintf("%d, ", shifted_adc);
 						
 						sum += shifted_adc * shifted_adc;
-						//sum += (adcRawInput[i].PE0 * 3300) / 4095; //average
+						//sum += (adcRawSS2Input[i].PE0 * 3300) / 4095; //average
 						//UARTprintf("%d, ", undo_signal_conditioning(shifted_adc) );
 						
 						//sum += undo_signal_conditioning(shifted_adc) * undo_signal_conditioning(shifted_adc);
@@ -133,16 +121,15 @@ static void ADCTask(void *pvParameters)
           }
           sum /= ARRAY_SIZE;
           sum = sqrt(sum);
+					result = ((sum) * 3300) / 4095;
+					//v_rms = result;
+					//v_rms = result;
+					v_rms = undo_signal_conditioning(result);
+					/*
+					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+					UARTprintf("RMS Voltage %d, ", undo_signal_conditioning(result) );
+					xSemaphoreGive(g_pUARTSemaphore);*/
         }
-        result = ((sum) * 3300) / 4095;
-				
-				//v_rms = result;
-				//v_rms = result;
-				v_rms = undo_signal_conditioning(result);
-				/*
-				xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-        UARTprintf("RMS Voltage %d, ", undo_signal_conditioning(result) );
-				xSemaphoreGive(g_pUARTSemaphore);*/
     }
 }
 
@@ -170,7 +157,8 @@ int sqrt(int input) {
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawInput[0].PE3, adcRawInput[0].PE2, adcRawInput[0].PE1, adcRawInput[0].PE0);
+	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawSS0Input[110].PE3, adcRawSS0Input[10].PE2, adcRawSS0Input[20].PE1, adcRawSS0Input[0].PE0);
+	UARTprintf("PD3: %d   |   PD2: %d   |    PE5: %d    |   PE4: %d\n", adcRawSS0Input[110].PD3, adcRawSS0Input[10].PD2, adcRawSS0Input[20].PE5, adcRawSS0Input[0].PE4);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
@@ -187,10 +175,8 @@ void ADC_PrintJSON(void) {
 // Initializes the LED task.
 //
 //*****************************************************************************
-uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
+uint32_t ADCTaskInit(void(*pTask))
 {
-
-		ProducerTask = pTask;
 	
     // Create a queue for sending messages to the LED task.
     //g_pLEDQueue = xQueueCreate(ADC_QUEUE_SIZE, ADC_ITEM_SIZE);
@@ -208,36 +194,63 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
        
     //IntMasterEnable(); //needed? Should be non critical
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE); 
+		SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD); 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0); 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
     GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0); //must have enabled ADC first
-    TimerDisable(TIMER2_BASE, TIMER_A);
+    GPIOPinTypeADC(GPIO_PORTD_BASE, GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0); //must have enabled ADC first
+		
+		// timer 2 associated with ADC 0
+		TimerDisable(TIMER2_BASE, TIMER_A);
     TimerControlTrigger(TIMER2_BASE, TIMER_A, true); //enable timer2A trigger to ADC
     TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC); // Disables the timers, but doesn't enable again
     TimerLoadSet(TIMER2_BASE, TIMER_A, SysCtlClockGet()/SAMPLES_PER_SEC); //SysCltClockGet returns count for 1 second so SysCtlClockGet() / 1000 sets the Timer0B load value to 1ms.
 		TimerIntDisable(TIMER2_BASE, 0xFFFFFFFF ); //disable all interrupts for this timer
-    TimerEnable(TIMER2_BASE, TIMER_A);
+    TimerEnable(TIMER2_BASE, TIMER_A);  
 		
     ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_RATE_EIGHTH , 1); //last param is divider
-    ADCSequenceDisable(ADC0_BASE, ADC_SEQUENCE2); 
-		ADCSequenceConfigure(ADC0_BASE, ADC_SEQUENCE2, ADC_TRIGGER_TIMER, 0);
+    ADCHardwareOversampleConfigure(ADC0_BASE, 64);
+		
+		//sequencer 0
+		ADCSequenceDisable(ADC0_BASE, ADC_SEQUENCE0); 
+		ADCSequenceConfigure(ADC0_BASE, ADC_SEQUENCE0, ADC_TRIGGER_TIMER, ADC_SEQUENCE0_PRIORITY);
+		ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 0, ADC_CTL_CH0 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 1, ADC_CTL_CH1 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 2, ADC_CTL_CH2 );
+		ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 3, ADC_CTL_CH3 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 4, ADC_CTL_CH4 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 5, ADC_CTL_CH5 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 6, ADC_CTL_CH8 );
+    ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE0, 7, ADC_CTL_CH9 | ADC_CTL_END | ADC_CTL_IE); //adc_base, Sequence Number, Step, set flag and end after first
+		ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE0); //adc_base, sequence 
+		ADCIntEnable(ADC0_BASE, ADC_SEQUENCE0);
+		ADCIntRegister(ADC0_BASE, ADC_SEQUENCE0, &ADC0Seq0_Handler);
+		IntPrioritySet(INT_ADC0SS0, 0);
+    IntEnable(INT_ADC0SS0);
+    ADCIntClear(ADC0_BASE, ADC_SEQUENCE0);	
+		
+		/*
+		// sequencer 2 Cannot use since sampling rate goes to the trash
+		ADCSequenceDisable(ADC0_BASE, ADC_SEQUENCE2); 
+		ADCSequenceConfigure(ADC0_BASE, ADC_SEQUENCE2, ADC_TRIGGER_TIMER, ADC_SEQUENCE2_PRIORITY);
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 0, ADC_CTL_CH3 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 1, ADC_CTL_CH2 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 2, ADC_CTL_CH1 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 3, ADC_CTL_CH0 | ADC_CTL_END | ADC_CTL_IE); //adc_base, Sequence Number, Step, set flag and end after first
-    ADCHardwareOversampleConfigure(ADC0_BASE, 64);
 		ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE2); //adc_base, sequence 
 		ADCIntEnable(ADC0_BASE, ADC_SEQUENCE2);
-    ADCIntRegister(ADC0_BASE, ADC_SEQUENCE2, &ADC0Seq2_Handler);
-    IntPrioritySet(INT_ADC0SS2, ADC_SEQUENCE2_PRIORITY);
+		ADCIntRegister(ADC0_BASE, ADC_SEQUENCE2, &ADC0Seq2_Handler);
+		IntPrioritySet(INT_ADC0SS2, 0);
     IntEnable(INT_ADC0SS2);
-    ADCIntClear(ADC0_BASE, ADC_SEQUENCE2);
+    ADCIntClear(ADC0_BASE, ADC_SEQUENCE2);	*/
 		
-		arrayFull = xSemaphoreCreateBinary();
+		//ss2Full = xSemaphoreCreateBinary();
+		ss0Full = xSemaphoreCreateBinary();
 		
-		adcRawInput = pvPortMalloc(250 * sizeof(AdcData_t)); //IMPORTANT FOR DEBUGGING
-		
-    // Create the task.
+		//adcRawSS2Input = pvPortMalloc(250 * sizeof(AdcSS2Data)); //IMPORTANT FOR DEBUGGING
+		adcRawSS0Input = pvPortMalloc(250 * sizeof(AdcSS0Data)); //IMPORTANT FOR DEBUGGING
+    
+		// Create the task.
     if(xTaskCreate(ADCTask, (const portCHAR *)"ADC", ADCTASKSTACKSIZE, NULL,
                    tskIDLE_PRIORITY + PRIORITY_ADC_TASK, NULL) != pdTRUE) 
     {
@@ -247,32 +260,69 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
     return(0);
 }
 
-void clearAdcData (AdcData_t *data) {
+void clearAdcData (AdcSS0Data *data) {
 	data->PE0 = 0;
 	data->PE1 = 0;
 	data->PE2 = 0;
 	data->PE3 = 0;
 }
-void setAdcData (AdcData_t *data) {
+void setAdcData (AdcSS0Data *data) {
 	data->PE0 = 4095;
 	data->PE1 = 4095;
 	data->PE2 = 4095;
 	data->PE3 = 4095;
 }
 
+/*
 void ADC0Seq2_Handler(void)
 {
+		//int test = 0;
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     ADCIntClear(ADC0_BASE, ADC_SEQUENCE2); // Clear the timer interrupt flag.
 
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE0);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE1);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE2);
-    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawInput[adc_input_index].PE3);
-	
-		adcCount++;
-		adc_input_index = (adc_input_index + 1) % (ARRAY_SIZE);
-		if(adc_input_index == (ARRAY_SIZE - 1)) {
-			xSemaphoreGiveFromISR(arrayFull, &xHigherPriorityTaskWoken);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawSS2Input[adc_ss2_index].PE3);
+		//ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &test);
+		//UARTprintf("PD3: %d\n", test);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawSS2Input[adc_ss2_index].PE2);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawSS2Input[adc_ss2_index].PE1);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE2, &adcRawSS2Input[adc_ss2_index].PE0);
+		
+
+		adc_ss2_index = (adc_ss2_index + 1) % (ARRAY_SIZE);
+
+		if(adc_ss2_index == (ARRAY_SIZE - 1)) {
+			xSemaphoreGiveFromISR(ss2Full, &xHigherPriorityTaskWoken);
 		}
+	
 }
+*/
+
+
+
+void ADC0Seq0_Handler(void)
+{	
+		//int test = 0;
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    ADCIntClear(ADC0_BASE, ADC_SEQUENCE0); // Clear the timer interrupt flag.
+	
+		ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE3);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE2);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE1);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE0);
+		ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PD3);
+		ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PD2);
+		ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE5);
+    ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &adcRawSS0Input[adc_ss0_index].PE4);
+		
+	
+		//ADCSequenceDataGet(ADC0_BASE, ADC_SEQUENCE0, &test);
+		//UARTprintf("PD3: %d\n", test);
+		
+		adc_ss0_index = (adc_ss0_index + 1) % (ARRAY_SIZE);
+	
+		if(adc_ss0_index == (ARRAY_SIZE - 1)) {
+			xSemaphoreGiveFromISR(ss0Full, &xHigherPriorityTaskWoken);
+		}
+	
+}
+

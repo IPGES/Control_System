@@ -25,20 +25,38 @@
 #ifndef __ADC_TASK_H__
 #define __ADC_TASK_H__
 
-struct AdcData{
-	uint32_t PE0;
-	uint32_t PE1;
-	uint32_t PE2;
+/*
+struct AdcSS2{
 	uint32_t PE3;
+	uint32_t PE2;
+	uint32_t PE1;
+	uint32_t PE0;
+	uint32_t PD3;
+	uint32_t PD2;
+	uint32_t PD1;
+	uint32_t PD0;
 };
-typedef struct AdcData AdcData_t;
+typedef struct AdcSS2 AdcSS2Data;
+*/
+
+struct AdcSS0{
+	uint32_t PE3;
+	uint32_t PE2;
+	uint32_t PE1;
+	uint32_t PE0;
+	uint32_t PD3;
+	uint32_t PD2;
+	uint32_t PE5;
+	uint32_t PE4;
+};
+typedef struct AdcSS0 AdcSS0Data;
 
 //*****************************************************************************
 //
 // Prototypes for the LED task.
 //
 //*****************************************************************************
-uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct));
+uint32_t ADCTaskInit(void(*pTask));
 void ADC_Print(void);
 void ADC_PrintJSON(void); 
 uint16_t ADC_PrintFreq(void);
