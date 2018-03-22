@@ -9,6 +9,10 @@ from matplotlib import pyplot
 import time
 import math
 import datetime
+import re
+from requestExpress import post_to_express
+import threading
+import sys
 
 #Write SPI to tm4c -- replaces write_pot
 def write_spi(val, ser):
@@ -29,8 +33,9 @@ def write_dc(dc, val, ser):
         temp = x
         if temp < 10:
             temp = '0' + str(x)
-        str1 = ('WW ' + str(temp) + '\n')
-        ser.write(str1.encode())
+        str1 = ('W ' + str(temp) + '\n')
+        with lock:
+            ser.write(str1.encode())
         time.sleep(0.3)
     return val
 
@@ -40,7 +45,7 @@ def write_loop(entries_per_day, wind_output, scale_factor, solar_SPI, start_poin
     for i in range(0, entries_per_day):
         next_dc = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         dc = write_dc(dc, next_dc, ser)
-        write_spi(int(round(solar_SPI[start_point + i])), ser)
+        #write_spi(int(round(solar_SPI[start_point + i])), ser)
         '''
         print("Current Time: ", time_array[i])
         print("Wind Output: ", wind_output[i])
@@ -87,5 +92,54 @@ def run(ser):
     write_loop(entries_per_day, wind_output, scale_factor, solar_SPI, start_point, ser)
 
 
+def toCloud(ser):
+    while True:
+        while True:
+            with lock:
+                tm4cIn = ser.readline() #comes in as bytes and has b' as a header
+                print(str(tm4cIn))
+                parsedTm4c = str(tm4cIn).rsplit('b\'')[1].rsplit('\\r\\n')[0]
+                #if(parsedTm4c[0] != '@'):
+                #    break;
+                print(parsedTm4c)
+                timeRecieved = datetime.datetime.now()
+                timeValue = timeRecieved.hour * 100 + timeRecieved.minute
+                pvValue = parsedTm4c.split("\"pv\" : ")[1].split(',')[0]
+                inverterValue = parsedTm4c.split("\"inverter\" : ")[1].split(',')[0]
+                windValue = parsedTm4c.split("\"wind\" : ")[1].split(',')[0]
+                gridValue = parsedTm4c.split("\"grid\" : ")[1].split(',')[0]
+                loadValue = parsedTm4c.split("\"load\" : ")[1].split(',')[0]
+                print(timeValue, " " ,pvValue, " ", pvValue, " ", inverterValue, " ", windValue, " ", gridValue, " ", loadValue) 
+                if(parsedTm4c[0] == '@'):
+                    post_to_express(timeValue, pvValue, inverterValue, inverterValue, gridValue, loadValue)
+                    break
+        print("Done")
+    ser.close()
+
+lock = Lock()
+
+if __name__ == "__main__":
+    URL = "https://damp-gorge-19491.herokuapp.com"
+    URL += "/tm4cInput"
+
+    #Choose Port
+    print("These are all the available ports:")
+    print(serial_ports())
+    portNum = input("Choose a port: ")
+    print("You chose: ", portNum)
+
+
+    ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
+    ser.flushInput()
+    ser.flushOutput()
+    try:
+        t1 = threading.Thread(target=run, args=(ser,))
+        t2 = threading.Thread(target=toCloud, args=(ser,))
+        t1.start()
+        time.sleep(10)
+        t2.start()
+    except KeyboardInterrupt:
+        print("Interrupted")
+        sys.exit(0)
 
 
