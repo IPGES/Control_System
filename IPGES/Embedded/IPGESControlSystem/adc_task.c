@@ -91,8 +91,12 @@ void setAdcData (AdcData_t *data);
 int sqrt(int input);
 int undo_signal_conditioning(int input);
 
-#define SAMPLES_PER_SEC 1000
-#define ARRAY_SIZE 250 //250
+#define scb_mean 2022
+#define scb_factor 11
+#define transformer_factor 5
+
+#define SAMPLES_PER_SEC 2000
+#define ARRAY_SIZE 500 //250
 AdcData_t *adcRawInput;
 uint16_t adc_input_index = 0;
 
@@ -116,13 +120,24 @@ static void ADCTask(void *pvParameters)
 		while(1) {
        if( xSemaphoreTake( arrayFull, timeOut ) == pdTRUE ) {
           for(int i = 0; i < ARRAY_SIZE; i++) {
-            sum += (adcRawInput[i].PE0 * adcRawInput[i].PE0) / 100;
-            //UARTprintf("%d, ", (adcRawInput[i].PE0 * 3300) / (4095) );
+						//UARTprintf("%d, ", (adcRawInput[i].PE0 * 3300) / (4095) );
+						int shifted_adc = adcRawInput[i].PE0 - scb_mean; //fix point calculations
+						//UARTprintf("%d, ", shifted_adc);
+						
+						sum += shifted_adc * shifted_adc;
+						//sum += (adcRawInput[i].PE0 * 3300) / 4095; //average
+						//UARTprintf("%d, ", undo_signal_conditioning(shifted_adc) );
+						
+						//sum += undo_signal_conditioning(shifted_adc) * undo_signal_conditioning(shifted_adc);
+						
           }
           sum /= ARRAY_SIZE;
           sum = sqrt(sum);
         }
-        result = (sum * 3300) / 4095;
+        result = ((sum) * 3300) / 4095;
+				
+				//v_rms = result;
+				//v_rms = result;
 				v_rms = undo_signal_conditioning(result);
 				/*
 				xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -132,25 +147,26 @@ static void ADCTask(void *pvParameters)
 }
 
 int undo_signal_conditioning(int input) {
-  return (input * (62876) / 10000);   
+  return (input * 11 * 5);   
 }
+
 int sqrt(int input) {
   
-  int guess = 1650;
-  int guess_sq = 27225;
-  int delta = 820;
+  int guess = 1050;
+  int guess_sq = 1102500;
+  int delta = 525;
   for(int i = 0; i < 9; i++) {
     if(input > guess_sq) {
       guess += delta;
-      guess_sq = (guess / 10) * (guess / 10);
+      guess_sq = (guess) * (guess);
     } else {
       guess -= delta;
-      guess_sq = (guess / 10) * (guess / 10);
+      guess_sq = (guess) * (guess);
     }
     delta /= 2;
   }
   return guess; 
-}
+} 
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -160,7 +176,9 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
+	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
+	UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
+	//UARTprintf("@{grid: \"load\" : %d,}\n", undo_signal_conditioning(v_rms));
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
@@ -202,13 +220,14 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
 		
     ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_RATE_EIGHTH , 1); //last param is divider
     ADCSequenceDisable(ADC0_BASE, ADC_SEQUENCE2); 
-    ADCSequenceConfigure(ADC0_BASE, ADC_SEQUENCE2, ADC_TRIGGER_TIMER, 0);
+		ADCSequenceConfigure(ADC0_BASE, ADC_SEQUENCE2, ADC_TRIGGER_TIMER, 0);
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 0, ADC_CTL_CH3 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 1, ADC_CTL_CH2 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 2, ADC_CTL_CH1 );
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQUENCE2, 3, ADC_CTL_CH0 | ADC_CTL_END | ADC_CTL_IE); //adc_base, Sequence Number, Step, set flag and end after first
-    ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE2); //adc_base, sequence 
-    ADCIntEnable(ADC0_BASE, ADC_SEQUENCE2);
+    ADCHardwareOversampleConfigure(ADC0_BASE, 64);
+		ADCSequenceEnable(ADC0_BASE, ADC_SEQUENCE2); //adc_base, sequence 
+		ADCIntEnable(ADC0_BASE, ADC_SEQUENCE2);
     ADCIntRegister(ADC0_BASE, ADC_SEQUENCE2, &ADC0Seq2_Handler);
     IntPrioritySet(INT_ADC0SS2, ADC_SEQUENCE2_PRIORITY);
     IntEnable(INT_ADC0SS2);
