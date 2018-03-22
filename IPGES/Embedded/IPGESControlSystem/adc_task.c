@@ -95,8 +95,8 @@ int undo_signal_conditioning(int input);
 #define scb_factor 11
 #define transformer_factor 5
 
-#define SAMPLES_PER_SEC 2000
-#define ARRAY_SIZE 500 //250
+#define SAMPLES_PER_SEC 1000
+#define ARRAY_SIZE 250 //250
 AdcData_t *adcRawInput;
 uint16_t adc_input_index = 0;
 
@@ -170,14 +170,14 @@ int sqrt(int input) {
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", 0, 0, 0, 0);
+	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawInput[0].PE3, adcRawInput[0].PE2, adcRawInput[0].PE1, adcRawInput[0].PE0);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
-	UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
+	//UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
 	//UARTprintf("@{grid: \"load\" : %d,}\n", undo_signal_conditioning(v_rms));
 	xSemaphoreGive(g_pUARTSemaphore);
 }
@@ -235,7 +235,7 @@ uint32_t ADCTaskInit(void(*pTask)(AdcData_t pDataStruct))
 		
 		arrayFull = xSemaphoreCreateBinary();
 		
-		adcRawInput = pvPortMalloc(1000 * sizeof(AdcData_t)); //IMPORTANT FOR DEBUGGING
+		adcRawInput = pvPortMalloc(250 * sizeof(AdcData_t)); //IMPORTANT FOR DEBUGGING
 		
     // Create the task.
     if(xTaskCreate(ADCTask, (const portCHAR *)"ADC", ADCTASKSTACKSIZE, NULL,

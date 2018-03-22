@@ -102,7 +102,8 @@ static void ControlsTask(void *pvParameters)
     UARTprintf("Freq %d\n", input);
 		xSemaphoreGive(g_pUARTSemaphore); */
 			
-			ADC_PrintJSON(); //needed for UI
+			//ADC_PrintJSON(); //needed for UI
+			ADC_Print();
 			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); //Sleep Scheduler
 			
     } //forever loop 

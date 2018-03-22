@@ -59,18 +59,18 @@ static void GPIOTask(void *pvParameters)
 	// Loop forever.
 	while(1)
 	{  
-		GPIO_PB2_set_high();
+		GPIO_PF2_set_high();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
-		GPIO_PB2_set_low();
+		GPIO_PF2_set_low();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 	}  //forever loop 
 }
 
-void GPIO_PB2_set_high(void) {
+void GPIO_PF2_set_high(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 }
 
-void GPIO_PB2_set_low(void) {
+void GPIO_PF2_set_low(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
 }
 
