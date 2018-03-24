@@ -97,8 +97,8 @@ unsigned long adcCount = 0; //debug
 static void ADCTask(void *pvParameters)
 {
 		int timeOut = 0xffff;
-		int result = 0;
-		int sum = 0;;
+		int result_vrms = 0;
+		int sum_vrms = 0;;
 	
 		// Print the current loggling LED and frequency.
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -108,70 +108,76 @@ static void ADCTask(void *pvParameters)
 		while(1) {
        if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
           for(int i = 0; i < ARRAY_SIZE; i++) {
-						//UARTprintf("%d, ", (adcRawSS0Input[i].PE0 * 3300) / (4095) );
 						int shifted_adc = adcRawSS0Input[i].PE0 - scb_mean; //fix point calculations
-						//UARTprintf("%d, ", (shifted_adc * 3300) / 4095);
-						
-						sum += shifted_adc * shifted_adc;
-						
-						//sum += (adcRawSS0Input[i].PE0 * 3300) / 4095; //average
-						//UARTprintf("%d, ", undo_signal_conditioning_load_vrms(shifted_adc) );
-						
+						sum_vrms += shifted_adc * shifted_adc;
           }
-          sum /= ARRAY_SIZE;
-          sum = sqrt(sum);
-					result = ((sum) * 3300) / 4095;
-					//v_rms = result;
-					v_rms = result;
-					//v_rms = undo_signal_conditioning_load_vrms(result);
-					/*
-					xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-					UARTprintf("RMS Voltage %d, ", undo_signal_conditioning_load_vrms(result) );
-					xSemaphoreGive(g_pUARTSemaphore);*/
+          sum_vrms /= ARRAY_SIZE;
+          sum_vrms = sqrt(sum_vrms);
+					result_vrms = ((sum_vrms) * 3300) / 4095;
+					//v_rms = result_vrms;
+					v_rms = undo_signal_conditioning_load_vrms(result_vrms);
         }
     }
 }
 
 int undo_signal_conditioning_load_vrms(int input) {
 	int result;
-	if(input < 36) { 
-		result = (input * 117) /100; 
-	} else if (input < 52) {
-		result = (input * 2423) /100; 
-	} else if (input < 65) {
-		result = (input * 3169) /100; 
-	} else if (input < 78) {
-		result = (input * 3705) /100; 
-	} else if (input < 94) {
-		result = (input * 4074) /100; 
-	} else if (input < 112) {
-		result = (input * 4258) /100; 
-	} else if (input < 131) {
-		result = (input * 4404) /100; 
-	} else if (input < 147) {
-		result = (input * 4605) /100; 
-	} else if (input < 166) {
-		result = (input * 4645) /100; 
-	} else if (input < 186) {
-		result = (input * 4677) /100; 
-	} else if (input < 202) {
-		result = (input * 4772) /100; 
-	} else if (input < 221) {
-		result = (input * 4787) /100; 
-	} else if (input < 237) {
-		result = (input * 4831) /100; 
-	} else if (input < 257) {
-		result = (input * 4832) /100; 
-	} else if (input < 273) {
-		result = (input * 4875) /100; 
-	} else if (input < 286) {
-		result = (input * 4961) /100; 
-	} else if (input < 302) {
-		result = (input * 4967) /100; 
-	} else if (input < 319) {
-		result = (input * 4978) /100; 
-	} else {
-		result = (input * 4956) / 100;
+	if(input < 20) { //002
+		result = (input * 65) /100; 
+	} else if (input < 23) { //004
+		result = (input * 465) /100; 
+	} else if (input < 26) { //006
+		result = (input * 2265) /100; 
+	} else if (input < 29) { //008
+		result = (input * 3300) /100; 
+	} else if (input < 36) { //010
+		result = (input * 3611) /100; 
+	} else if (input < 39) { //012
+		result = (input * 4169) /100; 
+	} else if (input < 45) { //014
+		result = (input * 4340) /100; 
+	} else if (input < 52) { //016
+		result = (input * 4396) /100; 
+	} else if (input < 55) { //018
+		result = (input * 4778) /100; 
+	} else if (input < 62) { //020
+		result = (input * 4800) /100; 
+	} else if (input < 68) { //022
+		result = (input * 4929) /100; 
+	} else if (input < 74) { //024
+		result = (input * 5064) /100; 
+	} else if (input < 84) { //026
+		result = (input * 4904) /100; 
+	} else if (input < 91) { //028
+		result = (input * 5010) /100; 
+	} else if (input < 97) { //030
+		result = (input * 5134) /100; 
+	} else if (input < 108) { //035
+		result = (input * 5564) /100; 
+	} else if (input < 137) { //040
+		result = (input * 5145) /100; 
+	} else if (input < 157) { //045
+		result = (input * 5133) /100; 
+	} else if (input < 173) { //050
+		result = (input * 5225) / 100;
+	} else if (input < 192) { //055
+		result = (input * 5140) / 100;
+	} else if (input < 215) { //060
+		result = (input * 5130) / 100;
+	} else if (input < 224) { //065
+		result = (input * 5281) / 100;
+	} else if (input < 244) { //070
+		result = (input * 5241) / 100;
+	} else if (input < 263) { //075
+		result = (input * 5197) / 100;
+	} else if (input < 279) { //080
+		result = (input * 5211) / 100;
+	} else if (input < 295) { //085
+		result = (input * 5220) / 100;
+	} else if (input < 308) { //090
+		result = (input * 5211) / 100;
+	} else { //095
+		result = (input * 5220) / 100;
 	} 
 	return result;   
 }
@@ -203,8 +209,8 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
-	UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
+	//UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
 	//UARTprintf("@{grid: \"load\" : %d,}\n", undo_signal_conditioning_load_vrms(v_rms));
 	xSemaphoreGive(g_pUARTSemaphore);
 }
