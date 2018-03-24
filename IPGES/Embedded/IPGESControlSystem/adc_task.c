@@ -108,15 +108,14 @@ static void ADCTask(void *pvParameters)
 		while(1) {
        if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
           for(int i = 0; i < ARRAY_SIZE; i++) {
-						//UARTprintf("%d, ", (adcRawSS2Input[i].PE0 * 3300) / (4095) );
+						//UARTprintf("%d, ", (adcRawSS0Input[i].PE0 * 3300) / (4095) );
 						int shifted_adc = adcRawSS0Input[i].PE0 - scb_mean; //fix point calculations
-						//UARTprintf("%d, ", shifted_adc);
+						UARTprintf("%d, ", shifted_adc);
 						
 						sum += shifted_adc * shifted_adc;
-						//sum += (adcRawSS2Input[i].PE0 * 3300) / 4095; //average
-						//UARTprintf("%d, ", undo_signal_conditioning(shifted_adc) );
 						
-						//sum += undo_signal_conditioning(shifted_adc) * undo_signal_conditioning(shifted_adc);
+						//sum += (adcRawSS0Input[i].PE0 * 3300) / 4095; //average
+						//UARTprintf("%d, ", undo_signal_conditioning(shifted_adc) );
 						
           }
           sum /= ARRAY_SIZE;
@@ -157,15 +156,15 @@ int sqrt(int input) {
 
 void ADC_Print(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawSS0Input[110].PE3, adcRawSS0Input[10].PE2, adcRawSS0Input[20].PE1, adcRawSS0Input[0].PE0);
-	UARTprintf("PD3: %d   |   PD2: %d   |    PE5: %d    |   PE4: %d\n", adcRawSS0Input[110].PD3, adcRawSS0Input[10].PD2, adcRawSS0Input[20].PE5, adcRawSS0Input[0].PE4);
+	//UARTprintf("PE3: %d   |   PE2: %d   |    PE1: %d    |   PE0: %d\n", adcRawSS0Input[110].PE3, adcRawSS0Input[10].PE2, adcRawSS0Input[20].PE1, adcRawSS0Input[0].PE0);
+	//UARTprintf("PD3: %d   |   PD2: %d   |    PE5: %d    |   PE4: %d\n", adcRawSS0Input[110].PD3, adcRawSS0Input[10].PD2, adcRawSS0Input[20].PE5, adcRawSS0Input[0].PE4);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
-	//UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
+	UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
 	//UARTprintf("@{grid: \"load\" : %d,}\n", undo_signal_conditioning(v_rms));
 	xSemaphoreGive(g_pUARTSemaphore);
 }
