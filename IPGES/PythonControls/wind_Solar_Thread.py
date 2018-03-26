@@ -14,6 +14,16 @@ from requestExpress import post_to_express
 import threading
 import sys
 
+def catch_str(ser):
+    global caught_str
+    with lock:
+        tm4cIn = ser.readline()  # comes in as bytes and has b' as a header
+    #print(str(tm4cIn))
+    parsedTm4c = str(tm4cIn).rsplit('b\'')[1].rsplit('\\r\\n')[0]
+    if (parsedTm4c[0] == '@'):
+        caught_str = parsedTm4c
+    print('Caught str: ', caught_str)
+
 #Write SPI to tm4c -- replaces write_pot
 def write_spi(val, ser):
     temp = val
@@ -31,11 +41,15 @@ def write_dc(dc, val, ser):
     for x in range(dc, val + increment, increment):
         print("Duty cycle changing: Currently:  ", x)
         temp = x
-        if temp < 10:
+        if x < 10:
             temp = '0' + str(x)
+        '''if x < 100:
+            temp = '0' + str(temp)'''
         str1 = ('W ' + str(temp) + '\n')
+        catch_str(ser)
         with lock:
             ser.write(str1.encode())
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA %%%%%%%%%%%%%% CUR VAL: ", temp, "DEST VAL: ", val)
         time.sleep(0.3)
     return val
 
@@ -43,6 +57,7 @@ def write_dc(dc, val, ser):
 def write_loop(entries_per_day, wind_output, scale_factor, solar_SPI, start_point, ser):
     dc = 0
     for i in range(0, entries_per_day):
+        print('ENTERING LOOP:  @!@#$@!##!#!@#!@#!#@!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@            -----   ', i)
         next_dc = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         dc = write_dc(dc, next_dc, ser)
         #write_spi(int(round(solar_SPI[start_point + i])), ser)
@@ -97,26 +112,33 @@ def toCloud(ser):
         while True:
             with lock:
                 tm4cIn = ser.readline() #comes in as bytes and has b' as a header
-                print(str(tm4cIn))
+                #print(str(tm4cIn))
                 parsedTm4c = str(tm4cIn).rsplit('b\'')[1].rsplit('\\r\\n')[0]
-                #if(parsedTm4c[0] != '@'):
+                if(parsedTm4c[0] != '@'):
+                    parsedTm4c = caught_str
                 #    break;
-                print(parsedTm4c)
+                #print(parsedTm4c)
                 timeRecieved = datetime.datetime.now()
                 timeValue = timeRecieved.hour * 100 + timeRecieved.minute
+                #try:
                 pvValue = parsedTm4c.split("\"pv\" : ")[1].split(',')[0]
                 inverterValue = parsedTm4c.split("\"inverter\" : ")[1].split(',')[0]
                 windValue = parsedTm4c.split("\"wind\" : ")[1].split(',')[0]
                 gridValue = parsedTm4c.split("\"grid\" : ")[1].split(',')[0]
                 loadValue = parsedTm4c.split("\"load\" : ")[1].split(',')[0]
-                print(timeValue, " " ,pvValue, " ", pvValue, " ", inverterValue, " ", windValue, " ", gridValue, " ", loadValue) 
+                #print(timeValue, " " ,pvValue, " ", pvValue, " ", inverterValue, " ", windValue, " ", gridValue, " ", loadValue)
                 if(parsedTm4c[0] == '@'):
                     post_to_express(timeValue, pvValue, inverterValue, inverterValue, gridValue, loadValue)
                     break
+                '''except IndexError:
+                    print("How did we get here?")
+                    print("how _did_ we get here??", caught_str)'''
+
         print("Done")
     ser.close()
 
-lock = Lock()
+lock = threading.Lock()
+caught_str = ''
 
 if __name__ == "__main__":
     URL = "https://damp-gorge-19491.herokuapp.com"
