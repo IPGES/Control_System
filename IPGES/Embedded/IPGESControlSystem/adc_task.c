@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// adc_task.c - A simple flashing LED task.
+// adc_task.c - ADC
 //
 //*****************************************************************************
 
@@ -39,9 +39,6 @@
 //
 //*****************************************************************************
 #define ADC_SEQUENCE0           0
-//#define ADC_SEQUENCE2           2
-
-//#define ADC_SEQUENCE2_PRIORITY  1
 #define ADC_SEQUENCE0_PRIORITY  0
 
 //*****************************************************************************
@@ -68,28 +65,26 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 //*****************************************************************************
 void (*ProducerTask)();  
-//void ADC0Seq2_Handler(void);
 void ADC0Seq0_Handler(void);
-//void Timer2IntHandler(void);
-//void Timer0IntHandler(void);
 void clearAdcData (AdcSS0Data *data);
 void setAdcData (AdcSS0Data *data);
 int sqrt(int input);
 int undo_signal_conditioning_load_vrms(int input);
+int scaling(int input, int *boundary, int *scale);
 
-#define scb_mean 2022
+#define scb_mean_load_vrms 2022
+#define scb_mean_load_irms 2867
 #define scb_factor 11
 #define transformer_factor 5
 
 #define SAMPLES_PER_SEC 1000 //sampling too many times causes contention between the two sequencers
 #define ARRAY_SIZE 250 //250
 AdcSS0Data *adcRawSS0Input;
-//AdcSS2Data *adcRawSS2Input;
-//uint16_t adc_ss2_index = 0;
 uint16_t adc_ss0_index = 0;
-static uint32_t v_rms;
+static uint32_t load_v_rms;
+static uint32_t load_i_rms;
+int test; 
 
-//xSemaphoreHandle ss2Full;
 xSemaphoreHandle ss0Full;
 
 unsigned long adcCount = 0; //debug
@@ -97,8 +92,11 @@ unsigned long adcCount = 0; //debug
 static void ADCTask(void *pvParameters)
 {
 		int timeOut = 0xffff;
-		int result_vrms = 0;
-		int sum_vrms = 0;;
+		int result_load_vrms = 0;
+		int result_load_irms = 0;
+		int sum_load_vrms = 0;
+		int sum_load_irms = 0;
+		AdcSS0Data shifted_adc;
 	
 		// Print the current loggling LED and frequency.
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -108,86 +106,64 @@ static void ADCTask(void *pvParameters)
 		while(1) {
        if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
           for(int i = 0; i < ARRAY_SIZE; i++) {
-						int shifted_adc = adcRawSS0Input[i].PE0 - scb_mean; //fix point calculations
-						sum_vrms += shifted_adc * shifted_adc;
+						//PE0
+						shifted_adc.PE0 = adcRawSS0Input[i].PE0 - scb_mean_load_vrms; //5.4 -> 1.63 mean 
+						sum_load_vrms += shifted_adc.PE0 * shifted_adc.PE0;
+						//PE1
+						shifted_adc.PE1 = adcRawSS0Input[i].PE1 - scb_mean_load_irms; //5.4 -> 2.31
+						sum_load_irms += shifted_adc.PE1 * shifted_adc.PE1; 
+						//UARTprintf("%d,", (adcRawSS0Input[i].PE1* 3300) / 4095);
+						//UARTprintf("%d,", adcRawSS0Input[i].PE0);
+						//UARTprintf("%d,",shifted_adc.PE0);
           }
-          sum_vrms /= ARRAY_SIZE;
-          sum_vrms = sqrt(sum_vrms);
-					result_vrms = ((sum_vrms) * 3300) / 4095;
-					//v_rms = result_vrms;
-					v_rms = undo_signal_conditioning_load_vrms(result_vrms);
+          sum_load_vrms /= ARRAY_SIZE;
+					sum_load_irms /= ARRAY_SIZE;
+          sum_load_vrms = sqrt(sum_load_vrms);
+					sum_load_irms = sqrt(sum_load_irms);
+					result_load_vrms = ((sum_load_vrms) * 3300) / 4095;
+					result_load_irms = ((sum_load_irms) * 3300) / 4095;
+					load_v_rms = undo_signal_conditioning_load_vrms(result_load_vrms);
+					test = result_load_vrms;
+					load_i_rms = result_load_irms;	
+					
         }
     }
 }
 
 int undo_signal_conditioning_load_vrms(int input) {
-	int result;
-	if(input < 20) { //002
-		result = (input * 65) /100; 
-	} else if (input < 23) { //004
-		result = (input * 465) /100; 
-	} else if (input < 26) { //006
-		result = (input * 2265) /100; 
-	} else if (input < 29) { //008
-		result = (input * 3300) /100; 
-	} else if (input < 36) { //010
-		result = (input * 3611) /100; 
-	} else if (input < 39) { //012
-		result = (input * 4169) /100; 
-	} else if (input < 45) { //014
-		result = (input * 4340) /100; 
-	} else if (input < 52) { //016
-		result = (input * 4396) /100; 
-	} else if (input < 55) { //018
-		result = (input * 4778) /100; 
-	} else if (input < 62) { //020
-		result = (input * 4800) /100; 
-	} else if (input < 68) { //022
-		result = (input * 4929) /100; 
-	} else if (input < 74) { //024
-		result = (input * 5064) /100; 
-	} else if (input < 84) { //026
-		result = (input * 4904) /100; 
-	} else if (input < 91) { //028
-		result = (input * 5010) /100; 
-	} else if (input < 97) { //030
-		result = (input * 5134) /100; 
-	} else if (input < 108) { //035
-		result = (input * 5564) /100; 
-	} else if (input < 137) { //040
-		result = (input * 5145) /100; 
-	} else if (input < 157) { //045
-		result = (input * 5133) /100; 
-	} else if (input < 173) { //050
-		result = (input * 5225) / 100;
-	} else if (input < 192) { //055
-		result = (input * 5140) / 100;
-	} else if (input < 215) { //060
-		result = (input * 5130) / 100;
-	} else if (input < 224) { //065
-		result = (input * 5281) / 100;
-	} else if (input < 244) { //070
-		result = (input * 5241) / 100;
-	} else if (input < 263) { //075
-		result = (input * 5197) / 100;
-	} else if (input < 279) { //080
-		result = (input * 5211) / 100;
-	} else if (input < 295) { //085
-		result = (input * 5220) / 100;
-	} else if (input < 308) { //090
-		result = (input * 5211) / 100;
-	} else { //095
-		result = (input * 5220) / 100;
-	} 
-	return result;   
+	int boundaries [28] = {20, 23, 26, 29, 36, 39, 45, 52, 55, 62, 68, 74, 84, 91, 97, 108, 137, 157, 173, 192, 215, 224, 244, 263, 279, 295, 308, 326};
+	int scale [28]  = {65,465,2265,3300,3611,4169,4340,4396,4778,4800,4929,5064,4904,5010,5134,5564,5145,5133,5225,5140,5130,5281,5241,5197,5211,5220,5211,5220};
+	int real_value = scaling(input, boundaries, scale);
+	return real_value;   
 }
+
+int scaling(int input, int *boundary, int *scale) {
+	int result = 0;
+	int test = 0; 
+	if(input < boundary[0]) {
+		result = (input * scale[0]) / 100;
+	}
+	
+	for(int i = 1; i < 28; i++) {
+		if(input >= boundary[i-1] && input < boundary[i]) {
+			result = (input * ((scale[i-1] + scale[i])/2)) / 100; 
+			test = ((scale[i-1] + scale[i])/2);
+		}			
+	}
+	if(input >= boundary[27]) {
+		result = (input * scale[27]) / 100;
+		test = 27;
+	}
+	
+	return test;
+}	
 
 int sqrt(int input) {
   
-  int guess = 1050;
-  int guess_sq = 1102500;
-  int delta = 525;
-  for(int i = 0; i < 9; i++) {
+  int guess = 2100;
+  int guess_sq = guess * guess;
+  int delta = 1050;	
+  for(int i = 0; i < 10; i++) {
     if(input > guess_sq) {
       guess += delta;
       guess_sq = (guess) * (guess);
@@ -209,9 +185,8 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, v_rms);
-	//UARTprintf("@{grid: \"load\" : %d,}\n", v_rms);
-	//UARTprintf("@{grid: \"load\" : %d,}\n", undo_signal_conditioning_load_vrms(v_rms));
+	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, load_v_rms);
+	UARTprintf("@{grid: \"load\" : %d, test %d}\n", test, load_v_rms);
 	xSemaphoreGive(g_pUARTSemaphore);
 }
 

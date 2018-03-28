@@ -93,7 +93,16 @@ static void SPITask(void *pvParameters)
 	pui32DataTx[0] = 50; //initial value
 	//pui32DataTx[1] = 128;
 	//pui32DataTx[2] = 0;
-	
+	for(ui32Index = 0; ui32Index < NUM_SSI_DATA; ui32Index++)
+		{
+			//
+			// Send the data using the "blocking" put function.  This function
+			// will wait until there is room in the send FIFO before returning.
+			// This allows you to assure that all the data you send makes it into
+			// the send FIFO.
+			//
+			SSIDataPut(SSI0_BASE, pui32DataTx[ui32Index]);
+		}
 	// Loop forever.
 	while(1)
 	{  
