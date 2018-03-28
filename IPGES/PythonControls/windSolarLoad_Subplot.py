@@ -29,7 +29,7 @@ ser.flushOutput()
 entries_per_day = 288
 
 #Set excel -- df = data file
-file = 'C:/Users/Braden/Documents/SeniorDesign/Control_System/IPGES/Embedded/PythonControls/Solar_Wind_Load_Data/SWL_Data.xlsx'
+file = 'C:/Users/Braden/Documents/SeniorDesign/Control_System/IPGES/PythonControls/Solar_Wind_Load_Data/SWL_Data.xlsx'
 df = pd.read_excel(file)
 
 #Set up arrays from excel file
@@ -85,11 +85,12 @@ wind_plot.plot(time_array, wind_output, label='wind', c='b')
 solar_plot.plot(time_array, solar_output, label='solar', c='r')
 load_plot.plot(time_array, load_output, label='load', c='k')
 total_plot.legend()
-wind_plot.set_ylabel('Megawatts')
+wind_plot.set_ylabel('Duty Cycle')
 wind_plot.legend()
 solar_plot.set_ylabel('SPI Input')
 solar_plot.legend()
 load_plot.set_ylabel('Duty Cycle')
+load_plot.set_xlabel('Time (Hours)')
 load_plot.legend()
 pyplot.ion()
 
@@ -114,25 +115,29 @@ print("After plot")'''
 
 
 #Write to potentiometer for Solar Output
-def write_pot(Pot):
-    Pot = 128 - Pot
-    msb = Pot >> 8
-    lsb = Pot & 0xFF
-    str1 = ('SPI ' + str([msb, lsb]))
+#Write SPI to tm4c -- replaces write_pot
+def write_spi(val):
+    temp = str(val)
+    if val < 10:
+        temp = '0' + str(temp)
+    if ((val >= 10) & (val <= 90)):
+        temp = '0' + str(temp)
+    print("SPI value being written: ", temp)
+    str1 = ('PV ' + str(temp) + '\n')
     ser.write(str1.encode())
-    #spi.xfer([msb, lsb])
 
 
 #write dc to tm4c -- replaces adjust_dc
 def write_dc(cur, next, dest, wait):
-    if(next < 80):
+    if((next < 80) & (dest == 'Wind ')):
         next = 80
     increment = (1) if (next > cur) else (-1)
     for x in range(cur, next + increment, increment):
         print(dest + " Duty cycle changing: Currently:  ", x)
-        temp = x
-        if temp < 10:
+        temp = str(x)
+        if x < 10:
             temp = '0' + str(x)
+        temp = '0' + temp
         str1 = (dest + str(temp) + '\n')
         ser.write(str1.encode())
         time.sleep(wait)
@@ -145,7 +150,7 @@ windWait = .3
 loadWait = .1
 wind_dc = 0
 load_dc = 0
-windDest = 'PWM '
+windDest = 'Wind '
 loadDest = 'Load '
 #write_dc(0, 0, windDest, .01)
 #write_dc(0, 0, loadDest, .01)
@@ -166,12 +171,15 @@ try:
         next_Wind = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
         next_Load = int(load_output[i])
         wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
-        #load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
+        load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
         ##adjust_dc(next_dc)
         solar_spi = (int(round(solar_SPI[start_point + i])))
         print("Wind input:      ", wind_output[i], "  Solar input: ", solar_output[i])
         print("Wind duty cycle: ", next_Wind, "      Solar SPI:   ", solar_spi)
-        #write_pot(int(round(solar_SPI[start_point + i])))
+        print("########")
+        print("TIME: ", time_array[i])
+        print("########")
+        write_spi(int(round(solar_SPI[start_point + i])))
         '''
         print("Current Time: ", time_array[i])
         print("Wind Output: ", wind_output[i])
@@ -181,7 +189,7 @@ try:
         time.sleep(1)'''
 except KeyboardInterrupt:
     pass
-
+time.sleep(15)
 write_dc(0)
 #p.stop()
 #GPIO.cleanup()
