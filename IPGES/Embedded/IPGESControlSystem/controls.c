@@ -102,6 +102,75 @@ static void ControlsTask(void *pvParameters)
 			UARTprintf("Freq %d\n", input);
 			xSemaphoreGive(g_pUARTSemaphore); */
 			
+			//***********************************Capacitor bank controls*************************************************
+			// Double check variable types
+			/*
+			int load_voltage = 24; // un-hardcode, ask Jim for the voltage measurement, or just change the if statements below.
+			int setpoint = 24 ; // distribution line Vin voltage setpoint
+			int tolerance = 1; // distribution line Vin voltage tolerance
+			int low_range = setpoint-tolerance; 
+			int high_range = setpoint+tolerance; 
+			
+			if(load_voltage<low_range){
+				GPIO_CAP1_set_high();
+				if(load_voltage<low_range){
+					GPIO_CAP2_set_high();
+					if(load_voltage<low_range){
+						GPIO_CAP3_set_high();
+					}
+				}
+			}
+			if(load_voltage>high_range){
+				GPIO_CAP1_set_low();
+				if(load_voltage>high_range){
+				GPIO_CAP2_set_low();
+					if(load_voltage>high_range){
+					GPIO_CAP3_set_low();
+					}
+				}
+			}*/
+			//**********************************End capacitor controls************************************
+			
+			//**************************************Load controls*****************************************//
+			/*
+			int controls(void){
+			int target_power = 60;
+			int measured_power;
+			int derivative;
+			int error;
+			int integral;
+			int last_error = 0; // unsure how this being 0 will affect the system
+			int delta_time; // get delta time from Jim
+			int pwm;
+			int dt; //
+			int kp = 1; // proportional gain
+			int ki = 1; // integral gain
+			int kd = 1; // derivative gain
+			int control_variable= 0;
+
+			 // Get the new measurement for power consumption.
+			 measured_power = read_power(); //ask jim
+			 // Here we should decide if we want to modify generation or load. In the first case, we will only be changing load.
+			 // Calculate the error, or delta between the target frequency and the newly measured frequency.
+			 error = target_power - measured_power; //P
+			 integral += error*dt;//I
+			 derivative = (error - last_error)/delta_time; // D -- unsure about delta in time
+			 // Calculate the control variable
+			 control_variable = kp*error + ki*integral + kd*derivative;
+			 
+			 // include something for open loop protections
+		 
+		//   // Limit the duty cycle to never be 0 to 100; important for
+		//   if(control_variable >= target_frequency){
+		//    pwm = control_variable/30;
+		//   }
+		//   if(control_variable <= target_frequency){}
+		//   if(pwm < 5) {pwm = 5;}
+		//  else if(pwm < 95) {pwm = 95;} */
+		  //**************************************End of load controls*****************************************//
+			
+			
+			
 			ADC_PrintJSON(); //needed for UI
 			//ADC_Print();
 			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); //Sleep Scheduler

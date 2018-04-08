@@ -37,6 +37,7 @@
 #include "adc_task.h"
 #include "pwm_task.h"
 #include "spi_task.h"
+#include "gpio_task.h"
 
 //*****************************************************************************
 //
@@ -83,6 +84,8 @@ static void InterpreterTask(void *pvParameters)
 	
 		int loadDutyCycle;
 		int windDutyCycle;
+		int gpio_level;
+		int gpio_port; 
 		int pvValue;
 
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -98,6 +101,31 @@ static void InterpreterTask(void *pvParameters)
 				case 'A': //ADC
 					ADC_Print();
 					break;
+				case 'G': 
+					gpio_port = (uartInput[4] - 48);
+					gpio_level = (uartInput[6] - 48); 
+					if(gpio_port == 1) {
+						if(gpio_level == 1) {
+							GPIO_CAP1_set_high();
+						} else {
+							GPIO_CAP1_set_low(); 
+						}
+					}
+					if(gpio_port == 2) {
+						if(gpio_level == 1) {
+							GPIO_CAP2_set_high();
+						} else {
+							GPIO_CAP2_set_low(); 
+						}
+					}
+					if(gpio_port ==3) {
+						if(gpio_level == 1) {
+							GPIO_CAP3_set_high();
+						} else {
+							GPIO_CAP3_set_low(); 
+						}
+					}
+					break; 
 				case 'L': //Load 010
 					loadDutyCycle = (uartInput[5] - 48) * 100 + (uartInput[6] - 48) * 10 + uartInput[7] - 48;
 					if(0 <= loadDutyCycle && loadDutyCycle <= 100) {

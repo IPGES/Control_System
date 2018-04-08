@@ -75,10 +75,6 @@ int undo_signal_conditioning_dist_vrms(int input);
 int undo_signal_conditioning_dist_irms(int input);
 int scaling(int input, int *boundary, int *scale);
 
-#define scb_mean_load_vrms 2022 //Power Supply 4.131
-#define scb_mean_load_irms 2891 //
-#define scb_mean_dist_vrms 0000 //Power Supply 4.131
-#define scb_mean_dist_irms 0000 //
 #define scb_factor 11
 #define transformer_factor 5
 
@@ -108,6 +104,15 @@ static void ADCTask(void *pvParameters)
 		int sum_dist_vrms = 0;
 		int sum_dist_irms = 0;
 		AdcSS0Data shifted_adc;
+		
+		int avg_sum_load_vrms;
+		int avg_sum_load_irms;
+		int avg_sum_dist_vrms;
+		int avg_sum_dist_irms; 
+		int scb_mean_load_vrms; //2022 //Power Supply 4.131
+		int scb_mean_load_irms; //2891 //
+		int scb_mean_dist_vrms; //0000 //Power Supply 4.131
+		int scb_mean_dist_irms; //0000 //
 	
 		// Print the current loggling LED and frequency.
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -115,7 +120,23 @@ static void ADCTask(void *pvParameters)
 		xSemaphoreGive(g_pUARTSemaphore);
 
 		while(1) {
-       if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
+			if( xSemaphoreTake( ss0Full, timeOut ) == pdTRUE ) {
+					avg_sum_load_vrms = 0;
+					avg_sum_load_irms = 0;
+					avg_sum_dist_vrms = 0;
+					avg_sum_dist_irms = 0;
+					for(int i = 0; i < ARRAY_SIZE; i++) {
+						avg_sum_load_vrms += adcRawSS0Input[i].PE0;
+						avg_sum_load_irms += adcRawSS0Input[i].PE1;
+						avg_sum_dist_vrms += adcRawSS0Input[i].PE2;
+						avg_sum_dist_irms += adcRawSS0Input[i].PE3;
+					//UARTprintf("%d,",adcRawSS0Input[i].PE3);
+					}
+					scb_mean_load_vrms = avg_sum_load_vrms/ARRAY_SIZE;
+					scb_mean_load_irms = avg_sum_load_irms/ARRAY_SIZE;
+					scb_mean_dist_vrms = avg_sum_dist_vrms/ARRAY_SIZE;
+					scb_mean_dist_irms = avg_sum_dist_irms/ARRAY_SIZE; 
+					//UARTprintf("AVG: %d\n",scb_mean_dist_irms);
           for(int i = 0; i < ARRAY_SIZE; i++) {
 						//PE0
 						shifted_adc.PE0 = adcRawSS0Input[i].PE0 - scb_mean_load_vrms; //5.4 -> 1.63 mean 
@@ -127,7 +148,7 @@ static void ADCTask(void *pvParameters)
 						shifted_adc.PE2 = adcRawSS0Input[i].PE2 - scb_mean_dist_vrms;
 						sum_dist_vrms += shifted_adc.PE2 * shifted_adc.PE2;
 						//PE3
-						shifted_adc.PE3 = adcRawSS0Input[i].PE2 - scb_mean_dist_irms;
+						shifted_adc.PE3 = adcRawSS0Input[i].PE3 - scb_mean_dist_irms;
 						sum_dist_irms += shifted_adc.PE3 * shifted_adc.PE3; 
 						
 						//UARTprintf("%d,", (adcRawSS0Input[i].PE2* 3300) / 4095);
@@ -136,44 +157,62 @@ static void ADCTask(void *pvParameters)
           }
           sum_load_vrms /= ARRAY_SIZE;
 					sum_load_irms /= ARRAY_SIZE;
+					sum_dist_vrms /= ARRAY_SIZE;
+					sum_dist_irms /= ARRAY_SIZE;
 					
           sum_load_vrms = sqrt(sum_load_vrms);
 					sum_load_irms = sqrt(sum_load_irms);
+					sum_dist_vrms = sqrt(sum_dist_vrms); 
+					sum_dist_irms = sqrt(sum_dist_irms);
 					
 					result_load_vrms = ((sum_load_vrms) * 3300) / 4095;
 					result_load_irms = ((sum_load_irms) * 3300) / 4095;
+					result_dist_vrms = ((sum_dist_vrms) * 3300) / 4095;
+					result_dist_irms = ((sum_dist_irms) * 3300) / 4095;
 					
 					load_v_rms = undo_signal_conditioning_load_vrms(result_load_vrms);
-			 		load_i_rms = result_load_irms;	
+			 		load_i_rms = undo_signal_conditioning_load_irms(result_load_irms);
+					dist_v_rms = undo_signal_conditioning_dist_vrms(result_dist_vrms);
+					dist_i_rms = undo_signal_conditioning_dist_irms(result_dist_irms);
 					
+					//UARTprintf("Volt: %d\n", result_dist_vrms);
+					//UARTprintf("Curr: %d\n", result_dist_irms);
+					//load_v_rms = result_load_vrms;
+					//load_i_rms = result_load_irms;	
+					//dist_i_rms
+					
+					//UARTprintf("Volt: %d\n", result_dist_vrms);
+					//UARTprintf("Curr: %d\n", result_dist_irms);
+					//UARTprintf("Volt: %d\n", result_dist_vrms);
+					//UARTprintf("Curr: %d\n", result_dist_irms);					
         }
     }
 }
 
 int undo_signal_conditioning_load_vrms(int input) {
-	int boundaries [28] = {20, 23, 26, 29, 36, 39, 45, 52, 55, 62, 68, 74, 84, 91, 97, 108, 137, 157, 173, 192, 215, 224, 244, 263, 279, 295, 308, 326};
-	int scale [28]  = {65,465,2265,3300,3611,4169,4340,4396,4778,4800,4929,5064,4904,5010,5134,5564,5145,5133,5225,5140,5130,5281,5241,5197,5211,5220,5211,5220};
+	int boundaries [28] = {10,13,20,26,33,36,39,45,52,58,65,71,78,84,94,112,131,147,163,186,202,218,237,257,273,289,308,319};
+	int scale [28]  = {1630,1253,2885,3561,3815,4366,4843,4917,4905,4970,4995,5088,5105,5190,5063,5151,5160,5238,5300,5215,5207,5256,5329,5233,5227,5249,5282,5260};
 	int real_value = scaling(input, boundaries, scale);
 	return real_value;   
 }
 
 int undo_signal_conditioning_load_irms(int input) {
-	int boundaries [28] = {58,62,65,65,68,68,71,71,74,78,81,87,91,97,103,124,153,182,221,263,323,384,440,503,563,624,660,685};
-	int scale [28]  = {440, 490, 470, 490, 520, 550, 580, 610, 640, 670, 715, 760, 820, 865, 930, 1120, 1330, 1560, 1840, 2140, 2510, 2860, 3230, 3620, 4045, 4490, 4970, 5530};
+	int boundaries [28] = {62,65,68,69,70,71,74,77,78,81,84,91,94,100,108,128,153,186,228,269,319,371,426,484,537,585,618,663};
+	int scale [28]  = {790,815,764,768,800,816,810,805,807,827,845,835,851,860,861,867,869,849,828,814,793,778,767,762,761,776,799,844};
 	int real_value = scaling(input, boundaries, scale);
 	return real_value;   
 }
 
 int undo_signal_conditioning_dist_vrms(int input) {
-	int boundaries [28] = {20, 23, 26, 29, 36, 39, 45, 52, 55, 62, 68, 74, 84, 91, 97, 108, 137, 157, 173, 192, 215, 224, 244, 263, 279, 295, 308, 326};
-	int scale [28]  = {65,465,2265,3300,3611,4169,4340,4396,4778,4800,4929,5064,4904,5010,5134,5564,5145,5133,5225,5140,5130,5281,5241,5197,5211,5220,5211,5220};
+	int boundaries [28] = {7,55,84,103,124,147,166,179,195,218,250,257,289,308,339,371,390,413,432,429,445,455,464,468,477,481,487,497};
+	int scale [28]  = {5942,5036,5035,5165,5129,5095,5162,5122,5148,5087,5112,5140,5121,5123,5129,5126,5148,5125,5136,5244,5121,5123,5140,5143,5127,5147,5151,5116};
 	int real_value = scaling(input, boundaries, scale);
 	return real_value;   
 }
 
 int undo_signal_conditioning_dist_irms(int input) {
-	int boundaries [28] = {58,62,65,65,68,68,71,71,74,78,81,87,91,97,103,124,153,182,221,263,323,384,440,503,563,624,660,685};
-	int scale [28]  = {440, 490, 470, 490, 520, 550, 580, 610, 640, 670, 715, 760, 820, 865, 930, 1120, 1330, 1560, 1840, 2140, 2510, 2860, 3230, 3620, 4045, 4490, 4970, 5530};
+	int boundaries [28] = {4,7,10,16,23,29,36,42,45,58,68,71,87,100,118,134,147,163,173,182,189,192,199,215,368,474,553,595};
+	int scale [28]  = {250,1000,1400,1250,1086,1137,1111,1071,1133,1034,1014,1014,1011,990,974,970,952,926,936,923,915,916,919,897,831,814,848,941};
 	int real_value = scaling(input, boundaries, scale);
 	return real_value;   
 }
@@ -188,11 +227,14 @@ int scaling(int input, int *boundary, int *scale) {
 	
 	for(int i = 1; i < 28; i++) {
 		if(input >= boundary[i-1] && input < boundary[i]) {
+			result = (input * scale[i-1]) / 100;
+			/*
 			result = (input * ((scale[i-1] + scale[i])/2)) / 100; 
 			low_numerator = (input - boundary[i-1]);
 			high_numerator = ((boundary[i] - input));
 			difference = boundary[i] - boundary[i-1]; 
 			result = ((low_numerator * scale[i-1]) + (high_numerator * scale[i])) / difference;
+			*/
 			//test = ((scale[i-1] + scale[i])/2);
 		}			
 	}
@@ -230,10 +272,10 @@ void ADC_Print(void) {
 }
 
 void ADC_PrintJSON(void) {
-	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, 0, 0, 0, load_v_rms);
+	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
 	//UARTprintf("@{grid: \"load\" : %d}\n", (load_i_rms * load_v_rms)/1000);
-	UARTprintf("@{grid: \"load\" : %d}\n", load_i_rms);
+	//UARTprintf("@{grid: \"load\" : %d}\n", load_v_rms);
 	//UARTprintf("@{grid: \"load\" : %d, test %d}\n", load_v_rms, test);
 	xSemaphoreGive(g_pUARTSemaphore);
 }

@@ -31,7 +31,11 @@
 //
 //*****************************************************************************
 uint32_t GPIOTaskInit(void);
-void GPIO_PF2_set_high(void);
-void GPIO_PF2_set_low(void);
+void GPIO_CAP1_set_high(void);
+void GPIO_CAP1_set_low(void);
+void GPIO_CAP2_set_high(void);
+void GPIO_CAP2_set_low(void);
+void GPIO_CAP3_set_high(void);
+void GPIO_CAP3_set_low(void);
 
 #endif // __LED_TASK_H__

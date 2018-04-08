@@ -37,6 +37,9 @@
 #define GPIOSTASKSTACKSIZE        128         // Stack size in words
 
 extern xSemaphoreHandle g_pUARTSemaphore;
+
+void GPIO_Heartbeat_set_high(void);
+void GPIO_Heartbeat_set_low(void);
 //*****************************************************************************
 //
 // This task toggles the user selected LED at a user selected frequency. User
@@ -46,7 +49,6 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 static void GPIOTask(void *pvParameters)
 {
-		
 	portTickType ui32WakeTime;
 	
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
@@ -59,18 +61,35 @@ static void GPIOTask(void *pvParameters)
 	// Loop forever.
 	while(1)
 	{  
-		GPIO_PF2_set_high();
+		GPIO_Heartbeat_set_high();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
-		GPIO_PF2_set_low();
+		GPIO_Heartbeat_set_low();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 	}  //forever loop 
 }
 
-void GPIO_PF2_set_high(void) {
+void GPIO_CAP1_set_high(void) {
+	GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_7, GPIO_PIN_7);
+}
+void GPIO_CAP1_set_low(void) {
+	GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_7, 0x00);
+}
+void GPIO_CAP2_set_high(void) {
+	GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_PIN_6);
+}
+void GPIO_CAP2_set_low(void) {
+	GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_6, 0x00);
+}
+void GPIO_CAP3_set_high(void) {
+	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5, GPIO_PIN_5);
+}
+void GPIO_CAP3_set_low(void) {
+	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5, 0x00);
+}
+void GPIO_Heartbeat_set_high(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 }
-
-void GPIO_PF2_set_low(void) {
+void GPIO_Heartbeat_set_low(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
 }
 
@@ -82,7 +101,11 @@ void GPIO_PF2_set_low(void) {
 uint32_t GPIOTaskInit(void)
 {
 	SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+	GPIOPinTypeGPIOOutput(GPIO_PORTA_BASE, GPIO_PIN_7 | GPIO_PIN_6);
+	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_5);
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 	
     // Create the task.
