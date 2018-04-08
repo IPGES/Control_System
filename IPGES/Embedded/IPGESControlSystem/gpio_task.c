@@ -62,8 +62,16 @@ static void GPIOTask(void *pvParameters)
 	while(1)
 	{  
 		GPIO_Heartbeat_set_high();
+		GPIO_CAP1_set_high();
+		GPIO_CAP2_set_high();
+		GPIO_CAP3_set_high();
+		GPIO_Breaker_set_high();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 		GPIO_Heartbeat_set_low();
+		GPIO_CAP1_set_low();
+		GPIO_CAP2_set_low();
+		GPIO_CAP3_set_low();
+		GPIO_Breaker_set_low();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 	}  //forever loop 
 }
@@ -86,6 +94,12 @@ void GPIO_CAP3_set_high(void) {
 void GPIO_CAP3_set_low(void) {
 	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5, 0x00);
 }
+void GPIO_Breaker_set_high(void) {
+	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3);
+}
+void GPIO_Breaker_set_low(void) {
+	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, 0x00);
+}
 void GPIO_Heartbeat_set_high(void) {
 	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 }
@@ -105,7 +119,7 @@ uint32_t GPIOTaskInit(void)
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 	GPIOPinTypeGPIOOutput(GPIO_PORTA_BASE, GPIO_PIN_7 | GPIO_PIN_6);
-	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_5);
+	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_5 | GPIO_PIN_3);
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 	
     // Create the task.

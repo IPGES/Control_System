@@ -82,10 +82,10 @@ int scaling(int input, int *boundary, int *scale);
 #define ARRAY_SIZE 250 //250
 AdcSS0Data *adcRawSS0Input;
 uint16_t adc_ss0_index = 0;
-static uint32_t load_v_rms;
-static uint32_t load_i_rms;
-static uint32_t dist_v_rms;
-static uint32_t dist_i_rms;
+volatile uint32_t load_v_rms;
+volatile uint32_t load_i_rms;
+volatile uint32_t dist_v_rms;
+volatile uint32_t dist_i_rms;
 //int test; 
 
 xSemaphoreHandle ss0Full;
@@ -175,7 +175,7 @@ static void ADCTask(void *pvParameters)
 					dist_v_rms = undo_signal_conditioning_dist_vrms(result_dist_vrms);
 					dist_i_rms = undo_signal_conditioning_dist_irms(result_dist_irms);
 					
-					//UARTprintf("Volt: %d\n", result_dist_vrms);
+					UARTprintf("Volt: %d\n", undo_signal_conditioning_load_vrms(23));
 					//UARTprintf("Curr: %d\n", result_dist_irms);
 					//load_v_rms = result_load_vrms;
 					//load_i_rms = result_load_irms;	
@@ -217,6 +217,19 @@ int undo_signal_conditioning_dist_irms(int input) {
 	return real_value;   
 }
 
+int get_load_v_rms() {
+	return load_v_rms;
+}
+int get_load_i_rms() {
+	return load_i_rms;
+}
+int get_dist_v_rms() {
+	return dist_v_rms;
+}
+int get_dist_i_rms() {
+	return dist_v_rms;
+}
+
 int scaling(int input, int *boundary, int *scale) {
 	int result = 0;
 	int low_numerator, high_numerator, difference = 0;
@@ -227,14 +240,12 @@ int scaling(int input, int *boundary, int *scale) {
 	
 	for(int i = 1; i < 28; i++) {
 		if(input >= boundary[i-1] && input < boundary[i]) {
-			result = (input * scale[i-1]) / 100;
-			/*
-			result = (input * ((scale[i-1] + scale[i])/2)) / 100; 
+			//result = (input * scale[i-1]) / 100; //round down
+			//result = (input * ((scale[i-1] + scale[i])/2)) / 100; //avg
 			low_numerator = (input - boundary[i-1]);
 			high_numerator = ((boundary[i] - input));
 			difference = boundary[i] - boundary[i-1]; 
 			result = ((low_numerator * scale[i-1]) + (high_numerator * scale[i])) / difference;
-			*/
 			//test = ((scale[i-1] + scale[i])/2);
 		}			
 	}
@@ -273,7 +284,7 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
+	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
 	//UARTprintf("@{grid: \"load\" : %d}\n", (load_i_rms * load_v_rms)/1000);
 	//UARTprintf("@{grid: \"load\" : %d}\n", load_v_rms);
 	//UARTprintf("@{grid: \"load\" : %d, test %d}\n", load_v_rms, test);
@@ -406,8 +417,6 @@ void ADC0Seq2_Handler(void)
 	
 }
 */
-
-
 
 void ADC0Seq0_Handler(void)
 {	
