@@ -287,7 +287,6 @@ void ADC_Print(void) {
 void ADC_PrintJSON(void) {
 	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
-	UARTprintf("@{\"Load Volt\" : %d, \"Load Curr\" : %d, \"Dist Volt\" : %d, \"Dist Curr\" : %d,}\n", load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
 	//UARTprintf("@{grid: \"load\" : %d}\n", (load_i_rms * load_v_rms)/1000);
 	//UARTprintf("@{grid: \"load\" : %d}\n", load_v_rms);
 	//UARTprintf("@{grid: \"load\" : %d, test %d}\n", load_v_rms, test);
