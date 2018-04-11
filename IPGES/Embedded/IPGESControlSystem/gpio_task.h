@@ -40,5 +40,8 @@ void GPIO_CAP3_set_low(void);
 void GPIO_Breaker_set_low(void);
 void GPIO_Breaker_set_high(void);
 int get_load_v_rms(); 
+int get_load_i_rms();
+int get_dist_v_rms();
+int get_dist_i_rms();
 
 #endif // __LED_TASK_H__

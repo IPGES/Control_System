@@ -82,10 +82,10 @@ int scaling(int input, int *boundary, int *scale);
 #define ARRAY_SIZE 250 //250
 AdcSS0Data *adcRawSS0Input;
 uint16_t adc_ss0_index = 0;
-volatile uint32_t load_v_rms;
-volatile uint32_t load_i_rms;
-volatile uint32_t dist_v_rms;
-volatile uint32_t dist_i_rms;
+static volatile uint32_t load_v_rms;
+static volatile uint32_t load_i_rms;
+static  volatile uint32_t dist_v_rms;
+static volatile uint32_t dist_i_rms;
 //int test; 
 
 xSemaphoreHandle ss0Full;
@@ -173,9 +173,9 @@ static void ADCTask(void *pvParameters)
 					load_v_rms = undo_signal_conditioning_load_vrms(result_load_vrms);
 			 		load_i_rms = undo_signal_conditioning_load_irms(result_load_irms);
 					dist_v_rms = undo_signal_conditioning_dist_vrms(result_dist_vrms);
-					dist_i_rms = undo_signal_conditioning_dist_irms(result_dist_irms);
+					dist_i_rms = undo_signal_conditioning_load_irms(result_dist_irms);
 					
-					UARTprintf("Volt: %d\n", undo_signal_conditioning_load_vrms(23));
+					//UARTprintf("Volt: %d\n", undo_signal_conditioning_load_vrms(23));
 					//UARTprintf("Curr: %d\n", result_dist_irms);
 					//load_v_rms = result_load_vrms;
 					//load_i_rms = result_load_irms;	
@@ -242,10 +242,12 @@ int scaling(int input, int *boundary, int *scale) {
 		if(input >= boundary[i-1] && input < boundary[i]) {
 			//result = (input * scale[i-1]) / 100; //round down
 			//result = (input * ((scale[i-1] + scale[i])/2)) / 100; //avg
+			/*
 			low_numerator = (input - boundary[i-1]);
 			high_numerator = ((boundary[i] - input));
 			difference = boundary[i] - boundary[i-1]; 
 			result = ((low_numerator * scale[i-1]) + (high_numerator * scale[i])) / difference;
+			*/
 			//test = ((scale[i-1] + scale[i])/2);
 		}			
 	}
