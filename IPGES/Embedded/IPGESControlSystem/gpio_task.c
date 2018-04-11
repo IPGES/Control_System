@@ -62,16 +62,16 @@ static void GPIOTask(void *pvParameters)
 	while(1)
 	{  
 		GPIO_Heartbeat_set_high();
-		GPIO_CAP1_set_high();
-		GPIO_CAP2_set_high();
-		GPIO_CAP3_set_high();
-		GPIO_Breaker_set_high();
+		//GPIO_CAP1_set_high();
+		//GPIO_CAP2_set_high();
+		//GPIO_CAP3_set_high();
+		//GPIO_Breaker_set_high();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 		GPIO_Heartbeat_set_low();
-		GPIO_CAP1_set_low();
-		GPIO_CAP2_set_low();
-		GPIO_CAP3_set_low();
-		GPIO_Breaker_set_low();
+		//GPIO_CAP1_set_low();
+		//GPIO_CAP2_set_low();
+		//GPIO_CAP3_set_low();
+		//GPIO_Breaker_set_low();
 		vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); // Sleep Scheduler
 	}  //forever loop 
 }

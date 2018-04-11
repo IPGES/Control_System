@@ -173,12 +173,12 @@ int main(void)
 					UARTprintf("Error, ADCTaskInit Failed.\n");
 				}
     }
-
+/*
     if(PWMTaskInit() != 0) {
         while(1) {
 					UARTprintf("Error, PWMTaskInit Failed.\n");
         }
-    }   
+    }   */
 /*
 		 if(SPITaskInit() != 0) {
         while(1) {

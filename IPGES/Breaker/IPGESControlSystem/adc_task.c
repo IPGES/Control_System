@@ -107,11 +107,12 @@ static void ADCTask(void *pvParameters)
 					islanded_control_voltage = ((avg_sum_load_irms/ARRAY_SIZE) * 3300)/4095;
 					//UARTprintf("PE0: %d\n",manual_control_voltage);
 					//UARTprintf("PE1: %d\n",islanded_control_voltage);
-					if(manual_control_voltage > 2800 || islanded_control_voltage > 2800) {
+					/*
+					if(manual_control_voltage > 2800 && islanded_control_voltage > 2800) {
 						GPIO_Breaker_set_high(); 
 					} else {
 						GPIO_Breaker_set_low();
-					}
+					} */
 			}
 		}
 }

@@ -104,6 +104,13 @@ static void ControlsTask(void *pvParameters)
 			UARTprintf("PE0: %d\n",manual_voltage);
 			UARTprintf("PE1: %d\n",islanded_voltage);
 			
+			if(manual_voltage > 2000 && islanded_voltage > 2000) {
+				GPIO_Breaker_set_high();
+				//GPIO_Breaker_set_low();
+			} else {
+				GPIO_Breaker_set_low();
+			}
+			
 			//ADC_PrintJSON(); //needed for UI
 			//ADC_Print();
 			vTaskDelayUntil(&ui32WakeTime, 1000 / portTICK_RATE_MS); //Sleep Scheduler

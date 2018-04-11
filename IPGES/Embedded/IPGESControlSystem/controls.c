@@ -110,7 +110,7 @@ static void ControlsTask(void *pvParameters)
 			int tolerance = 1; // distribution line Vin voltage tolerance
 			int low_range = target_voltage-tolerance; 
 			int high_range = target_voltage+tolerance; 
-			
+			/*
 			if(measured_load_voltage<low_range){
 				GPIO_CAP1_set_high();
 				if(measured_load_voltage<low_range){
@@ -129,13 +129,14 @@ static void ControlsTask(void *pvParameters)
 					}
 				}
 			}
+			*/
 			//**************************************End capacitor controls****************************************//
 			
 			//**************************************Power - Load controls*****************************************//
 			// Controlling load power levels during grid-tied scenario for demand response
 			// Future work: can be altered by replacing voltage with power once the solar and wind Vin, Iin 
 			// 							measurements are available.
-			
+			/*
 			int controls(void){
 				int target_voltage = 24; // what do we want this to be at? Less than 90% load
 				// int measured_load_current = get_load_i_rms; // ask jim which of the current measurements this is
@@ -151,7 +152,7 @@ static void ControlsTask(void *pvParameters)
 				int ki = 1; // integral gain
 				int kd = 1; // derivative gain
 				int control_variable= 0;
-			
+			*/
 			/*
 			 // Here we should decide if we want to modify generation or load. In the first case, we will only be changing load.
 			 // Calculate the error, or delta between the target frequency and the newly measured frequency.

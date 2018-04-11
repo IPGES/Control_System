@@ -87,6 +87,7 @@ static void InterpreterTask(void *pvParameters)
 		int gpio_level;
 		int gpio_port; 
 		int pvValue;
+		int breakerValue; 
 
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("Interpreter Init\n");
@@ -100,6 +101,14 @@ static void InterpreterTask(void *pvParameters)
 			switch(uartInput[0]) {
 				case 'A': //ADC
 					ADC_Print();
+					break;
+				case 'B': //Breaker
+					breakerValue = (uartInput[8] - 48);
+					if(breakerValue == 0) {
+						GPIO_Breaker_set_low();
+					} else {
+						GPIO_Breaker_set_high();
+					}
 					break;
 				case 'G': 
 					gpio_port = (uartInput[4] - 48);
