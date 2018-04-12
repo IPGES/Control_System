@@ -9,18 +9,18 @@ from matplotlib import pyplot
 import time
 import math
 
-s_dc = 0
-l_dc = 0
+s_dc = 2
+l_dc = 2
 
 #Choose Port
-
+'''
 print("These are all the available ports:")
 print(serial_ports())
 portNum = input("Choose a port: ")
 print("You chose: ", portNum)
 ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
 ser.flushInput()
-ser.flushOutput()
+ser.flushOutput()'''
 
 
 #Set entries per day -- we only simulate one day (could change if you increase this)
@@ -50,47 +50,55 @@ wind_output = [1.0] * entries_per_day
 solar_output = [1.0] * entries_per_day
 load_output = [1.0] * entries_per_day
 time_array = [1.0] * entries_per_day
+#Approx real watt output
+wind_watts = [1.0] * entries_per_day
+wind_watts_3p = [1.0] * entries_per_day
+solar_watts = [1.0] * entries_per_day
+load_watts = [1.0] * entries_per_day
 
-'''#SPI Setup
-spi = spidev.SpiDev()
-spi.open(0, 0)
-spi.max_speed_hz = 976000'''
 
 #Calculate wind scale factor for duty cycle in the selected day
-#Caps the solar duty cycle to .95
-scale_factor = 0
-maxOutput = 0
-maxSolar = 0
-maxLoad = 0
+#Caps the wind duty cycle to .98
+maxWindInput = 30
+maxWindOutput = 90 #90 Watts per phase
+maxSolarOutput = 36 #36 Watts single phase
+maxLoadOutput = 180 #180 Watts single phase
+
+
 for i in range(0, entries_per_day):
     time_array[i] = float(hour[i]) + float(minute[i])/60
-    wind_output[i] = wind_input[start_point + i]
+    wind_output[i] = 100*wind_input[start_point + i]/maxWindInput
     solar_output[i] = solar_input[start_point + i]
     load_output[i] = load_input[start_point + i]
-    if maxOutput < wind_input[start_point + i]:
-       maxOutput = wind_input[start_point + i]
-    if maxSolar < solar_input[start_point + i]:
-       maxSolar = solar_input[start_point + i]
-    if maxLoad < load_input[start_point + i]:
-       maxLoad = load_input[start_point + i]
-scale_factor = maxOutput * 1.05
+    wind_watts[i] = float(maxWindOutput/99) * wind_output[i]
+    wind_watts_3p[i] = wind_watts[i]*3      # must be balanced so *3 is correct
+    solar_watts[i] = float(maxSolarOutput/128) * solar_SPI[start_point + i]*128/209
+    load_watts[i] = float(maxLoadOutput/99) * load_output[i]
+
+
 
 print("Before plot")
 # #Set up plot
-f, (total_plot, wind_plot, solar_plot, load_plot) = pyplot.subplots(4, sharey=True)
-total_plot.plot(time_array, wind_output, label='wind', c='b')
-total_plot.plot(time_array, solar_output, label='solar', c='r')
-total_plot.plot(time_array, load_output, label='load', c='k')
-wind_plot.plot(time_array, wind_output, label='wind', c='b')
-solar_plot.plot(time_array, solar_output, label='solar', c='r')
-load_plot.plot(time_array, load_output, label='load', c='k')
+f, (total_plot, wind_plot, solar_plot, load_plot) = pyplot.subplots(4, sharey=False, figsize=(15,6))
+total_plot.plot(time_array, wind_watts_3p, label='Wind 3 phase', c='g')
+total_plot.plot(time_array, wind_watts, label='Wind', c='b')
+total_plot.plot(time_array, solar_watts, label='Solar', c='r')
+total_plot.plot(time_array, load_watts, label='Load', c='k')
+wind_plot.plot(time_array, wind_output, label='Wind', c='b')
+solar_plot.plot(time_array, solar_output, label='Solar', c='r')
+load_plot.plot(time_array, load_output, label='Load', c='k')
+total_plot.set_ylabel('Watts')
+total_plot.set_ylim(top=270)
 total_plot.legend()
 wind_plot.set_ylabel('Duty Cycle')
+wind_plot.set_ylim(top=100)
 wind_plot.legend()
-solar_plot.set_ylabel('SPI Input')
+solar_plot.set_ylabel('Insolation (%)')
+solar_plot.set_ylim(top=100)
 solar_plot.legend()
 load_plot.set_ylabel('Duty Cycle')
 load_plot.set_xlabel('Time (Hours)')
+load_plot.set_ylim(top=100)
 load_plot.legend()
 pyplot.ion()
 
@@ -117,20 +125,21 @@ print("After plot")'''
 #Write to potentiometer for Solar Output
 #Write SPI to tm4c -- replaces write_pot
 def write_spi(val):
+    val = int((val*128)/209)
     temp = str(val)
     if val < 10:
-        temp = '0' + str(temp)
+        temp = '00' + str(temp)
     if ((val >= 10) & (val <= 90)):
         temp = '0' + str(temp)
     print("SPI value being written: ", temp)
     str1 = ('PV ' + str(temp) + '\n')
-    ser.write(str1.encode())
+    #ser.write(str1.encode())
 
 
 #write dc to tm4c -- replaces adjust_dc
 def write_dc(cur, next, dest, wait):
-    if((next < 80) & (dest == 'Wind ')):
-        next = 80
+    if((next < 87) & (dest == 'Wind ')):
+        next = 87
     increment = (1) if (next > cur) else (-1)
     for x in range(cur, next + increment, increment):
         print(dest + " Duty cycle changing: Currently:  ", x)
@@ -139,17 +148,17 @@ def write_dc(cur, next, dest, wait):
             temp = '0' + str(x)
         temp = '0' + temp
         str1 = (dest + str(temp) + '\n')
-        ser.write(str1.encode())
-        time.sleep(wait)
+        #ser.write(str1.encode())
+        #time.sleep(wait)
     return next
 
 
 #Main Loop
 #if (ready == "y"):
-windWait = .3
+windWait = .4
 loadWait = .1
-wind_dc = 0
-load_dc = 0
+wind_dc = 2
+load_dc = 2
 windDest = 'Wind '
 loadDest = 'Load '
 #write_dc(0, 0, windDest, .01)
@@ -160,15 +169,18 @@ try:
     for i in range(0, entries_per_day):
         #pyplot.scatter(time_array[i], wind_output[i], c='b')
         #pyplot.scatter(time_array[i], solar_output[i], c='r')
-        #total_plot.scatter(time_array[i], wind_output[i], c='b')
-        #total_plot.scatter(time_array[i], solar_output[i], c='r')
-        #total_plot.scatter(time_array[i], load_output[i], c='k')
+        #wind_watts =
+        total_plot.scatter(time_array[i], wind_watts[i], c='b')
+        total_plot.scatter(time_array[i], wind_watts_3p[i], c='g')
+        total_plot.scatter(time_array[i], solar_watts[i], c='r')
+        total_plot.scatter(time_array[i], load_watts[i], c='k')
         wind_plot.scatter(time_array[i], wind_output[i], c='b')
         solar_plot.scatter(time_array[i], solar_output[i], c='r')
         load_plot.scatter(time_array[i], load_output[i], c='k')
         pyplot.draw()
         pyplot.pause(0.01)
-        next_Wind = int(math.floor(100*(wind_output[i]/scale_factor)))    #gets duty cycle
+        #next_Wind = int(math.floor((wind_output[i]/maxWind)))    #gets duty cycle
+        next_Wind = int(wind_output[i])
         next_Load = int(load_output[i])
         wind_dc = write_dc(wind_dc, next_Wind, windDest, windWait)
         load_dc = write_dc(load_dc, next_Load, loadDest, loadWait)
@@ -190,7 +202,7 @@ try:
 except KeyboardInterrupt:
     pass
 time.sleep(15)
-write_dc(0)
+write_dc(2)
 #p.stop()
 #GPIO.cleanup()
 

@@ -1,11 +1,8 @@
-#import spidev
 import math
 import time
 import serial
 from serialPort import serial_ports
-'''import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(12, GPIO.OUT)'''
+
 
 #Choose Port
 print("These are all the available ports:")
@@ -16,16 +13,6 @@ ser = serial.Serial(port=portNum, baudrate=115200, timeout=10) #need to set time
 ser.flushInput()
 ser.flushOutput()
 
-
-#p = GPIO.PWM(12, 50)    #channel 12, frequency 50Hz
-#p = GPIO.PWM(12, 5000)
-#p.start(0)
-
-#SPI Setup
-'''
-spi = spidev.SpiDev()
-spi.open(0, 0)
-spi.max_speed_hz = 976000'''
 
 #x = input("Enter a duty cycle: ")
 dc = 2
@@ -41,11 +28,6 @@ def adjust_dc(val):
         time.sleep(0.1)
     dc = val
 
-#Write to potentiometer for Solar Output
-def write_pot(Pot):
-    msb = Pot >> 8
-    lsb = Pot & 0xFF
-    spi.xfer([msb, lsb])
 
 #Write SPI to tm4c -- replaces write_pot
 def write_spi(val):
@@ -62,16 +44,6 @@ def write_spi(val):
 
 def write_dc(val):
     global dc
-    '''increment = (1) if (val > dc) else (-1)
-    for x in range(dc, val + increment, increment):
-        print("Duty cycle changing: Currently:  ", x)
-        temp = x
-        if temp < 10:
-            temp = '0' + str(x)
-        str1 = ('PWM ' + str(temp) + '\n')
-        ser.write(str1.encode())
-        time.sleep(0.3)
-    dc = val'''
     if val >= 100:
         val = 99
     if val <= 0:
@@ -90,22 +62,21 @@ def write_dc(val):
         time.sleep(.3)
     dc = val
 
+def write_breaker(status):
+    if(status == 0 | status == 1):
+        str1 = ('Breaker' + str(status) + '\n')
+        print(str1, '\n')
+        ser.write(str)
+
 try:
+        write_dc(2)
         while 1:
-                #SPI Code - next 6 lines
-                '''x = int(input("Enter an SPI (between 0 and 180 typically): "))
-                print("Current SPI: " + str(int(x)))
-                write_spi(int(round(x)))
-                print('before SPI sleep')
-                time.sleep(1)
-                print('after sleep')'''
                 #Duty cycle code - next two lines
-                x = input("Enter a duty cycle: ")
-                write_dc(int(x))
+                x = input("Enter a breaker setting: 1 - closed, 0  open")
+                write_breaker(int(x))
                 #adjust_dc(int(x))
 
 except KeyboardInterrupt:
         pass
 adjust_dc(2)
-p.stop()
-GPIO.cleanup()
+
