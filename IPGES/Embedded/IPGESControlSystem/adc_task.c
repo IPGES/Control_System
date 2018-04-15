@@ -82,10 +82,10 @@ int scaling(int input, int *boundary, int *scale);
 #define ARRAY_SIZE 250 //250
 AdcSS0Data *adcRawSS0Input;
 uint16_t adc_ss0_index = 0;
-static volatile uint32_t load_v_rms;
-static volatile uint32_t load_i_rms;
-static  volatile uint32_t dist_v_rms;
-static volatile uint32_t dist_i_rms;
+static uint32_t load_v_rms;
+static uint32_t load_i_rms;
+static uint32_t dist_v_rms;
+static uint32_t dist_i_rms;
 //int test; 
 
 xSemaphoreHandle ss0Full;
@@ -130,13 +130,13 @@ static void ADCTask(void *pvParameters)
 						avg_sum_load_irms += adcRawSS0Input[i].PE1;
 						avg_sum_dist_vrms += adcRawSS0Input[i].PE2;
 						avg_sum_dist_irms += adcRawSS0Input[i].PE3;
-					//UARTprintf("%d,",adcRawSS0Input[i].PE3);
+					//UARTprintf("%d,",adcRawSS0Input[i].PE0);
 					}
 					scb_mean_load_vrms = avg_sum_load_vrms/ARRAY_SIZE;
 					scb_mean_load_irms = avg_sum_load_irms/ARRAY_SIZE;
 					scb_mean_dist_vrms = avg_sum_dist_vrms/ARRAY_SIZE;
 					scb_mean_dist_irms = avg_sum_dist_irms/ARRAY_SIZE; 
-					//UARTprintf("AVG: %d\n",scb_mean_dist_irms);
+					UARTprintf("AVG: %d\n",scb_mean_load_vrms);
           for(int i = 0; i < ARRAY_SIZE; i++) {
 						//PE0
 						shifted_adc.PE0 = adcRawSS0Input[i].PE0 - scb_mean_load_vrms; //5.4 -> 1.63 mean 
@@ -151,7 +151,7 @@ static void ADCTask(void *pvParameters)
 						shifted_adc.PE3 = adcRawSS0Input[i].PE3 - scb_mean_dist_irms;
 						sum_dist_irms += shifted_adc.PE3 * shifted_adc.PE3; 
 						
-						//UARTprintf("%d,", (adcRawSS0Input[i].PE2* 3300) / 4095);
+						UARTprintf("%d,", (adcRawSS0Input[i].PE0* 3300) / 4095);
 						//UARTprintf("%d,", adcRawSS0Input[i].PE0);
 						//UARTprintf("%d,",shifted_adc.PE0);
           }
@@ -180,11 +180,18 @@ static void ADCTask(void *pvParameters)
 					//load_v_rms = result_load_vrms;
 					//load_i_rms = result_load_irms;	
 					//dist_i_rms
-					
-					//UARTprintf("Volt: %d\n", result_dist_vrms);
-					//UARTprintf("Curr: %d\n", result_dist_irms);
-					//UARTprintf("Volt: %d\n", result_dist_vrms);
-					//UARTprintf("Curr: %d\n", result_dist_irms);					
+					/*
+					UARTprintf("V-Dist: %d\n", result_dist_vrms); // JUlia uncommented this and the following line
+					UARTprintf("I-Dist: %d\n", result_dist_irms);
+					UARTprintf("V-Load: %d\n", result_load_vrms);
+					UARTprintf("I-Load: %d\n", result_load_irms);			
+					*/
+					/*
+					UARTprintf("V-Dist: %d\n", load_v_rms); // JUlia uncommented this and the following line
+					UARTprintf("I-Dist: %d\n", load_i_rms);
+					UARTprintf("V-Load: %d\n", dist_v_rms);
+					UARTprintf("I-Load: %d\n", dist_i_rms);			
+					*/
         }
     }
 }
@@ -217,6 +224,7 @@ int undo_signal_conditioning_dist_irms(int input) {
 	return real_value;   
 }
 
+
 int get_load_v_rms() {
 	return load_v_rms;
 }
@@ -242,12 +250,12 @@ int scaling(int input, int *boundary, int *scale) {
 		if(input >= boundary[i-1] && input < boundary[i]) {
 			//result = (input * scale[i-1]) / 100; //round down
 			//result = (input * ((scale[i-1] + scale[i])/2)) / 100; //avg
-			/*
+			
 			low_numerator = (input - boundary[i-1]);
 			high_numerator = ((boundary[i] - input));
 			difference = boundary[i] - boundary[i-1]; 
 			result = ((low_numerator * scale[i-1]) + (high_numerator * scale[i])) / difference;
-			*/
+			
 			//test = ((scale[i-1] + scale[i])/2);
 		}			
 	}
@@ -287,7 +295,7 @@ void ADC_Print(void) {
 void ADC_PrintJSON(void) {
 	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
-	UARTprintf("@{\"Load Volt\" : %d, \"Load Curr\" : %d, \"Dist Volt\" : %d, \"Dist Curr\" : %d,}\n", load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
+	//UARTprintf("@{\"Load Volt\" : %d, \"Load Curr\" : %d, \"Dist Volt\" : %d, \"Dist Curr\" : %d,}\n", load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
 	//UARTprintf("@{grid: \"load\" : %d}\n", (load_i_rms * load_v_rms)/1000);
 	//UARTprintf("@{grid: \"load\" : %d}\n", load_v_rms);
 	//UARTprintf("@{grid: \"load\" : %d, test %d}\n", load_v_rms, test);
