@@ -82,10 +82,10 @@ int scaling(int input, int *boundary, int *scale);
 #define ARRAY_SIZE 250 //250
 AdcSS0Data *adcRawSS0Input;
 uint16_t adc_ss0_index = 0;
-static volatile uint32_t load_v_rms;
-static volatile uint32_t load_i_rms;
-static  volatile uint32_t dist_v_rms;
-static volatile uint32_t dist_i_rms;
+uint32_t load_v_rms;
+uint32_t load_i_rms;
+uint32_t dist_v_rms;
+uint32_t dist_i_rms;
 //int test; 
 
 xSemaphoreHandle ss0Full;
@@ -130,7 +130,7 @@ static void ADCTask(void *pvParameters)
 						avg_sum_load_irms += adcRawSS0Input[i].PE1;
 						avg_sum_dist_vrms += adcRawSS0Input[i].PE2;
 						avg_sum_dist_irms += adcRawSS0Input[i].PE3;
-					//UARTprintf("%d,",adcRawSS0Input[i].PE3);
+					//UARTprintf("%d,",adcRawSS0Input[i].PE0);
 					}
 					scb_mean_load_vrms = avg_sum_load_vrms/ARRAY_SIZE;
 					scb_mean_load_irms = avg_sum_load_irms/ARRAY_SIZE;
@@ -180,11 +180,13 @@ static void ADCTask(void *pvParameters)
 					//load_v_rms = result_load_vrms;
 					//load_i_rms = result_load_irms;	
 					//dist_i_rms
+					/*
+					UARTprintf("Volt: %d\n", result_dist_vrms);
+					UARTprintf("Curr: %d\n", result_dist_irms);
+					UARTprintf("Volt: %d\n", result_dist_vrms);
+					UARTprintf("Curr: %d\n", result_dist_irms);	
+					*/					
 					
-					//UARTprintf("Volt: %d\n", result_dist_vrms);
-					//UARTprintf("Curr: %d\n", result_dist_irms);
-					//UARTprintf("Volt: %d\n", result_dist_vrms);
-					//UARTprintf("Curr: %d\n", result_dist_irms);					
         }
     }
 }
@@ -241,7 +243,7 @@ int scaling(int input, int *boundary, int *scale) {
 	for(int i = 1; i < 28; i++) {
 		if(input >= boundary[i-1] && input < boundary[i]) {
 			//result = (input * scale[i-1]) / 100; //round down
-			//result = (input * ((scale[i-1] + scale[i])/2)) / 100; //avg
+			result = (input * ((scale[i-1] + scale[i])/2)) / 100; //avg
 			/*
 			low_numerator = (input - boundary[i-1]);
 			high_numerator = ((boundary[i] - input));
@@ -286,8 +288,8 @@ void ADC_Print(void) {
 
 void ADC_PrintJSON(void) {
 	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	//UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
-	UARTprintf("@{\"Load Volt\" : %d, \"Load Curr\" : %d, \"Dist Volt\" : %d, \"Dist Curr\" : %d,}\n", load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
+	UARTprintf("@{\"pv\" : %d, \"inverter\" : %d, \"wind\" : %d, \"grid\" : %d, \"load\" : %d,}\n", 0, load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
+	//UARTprintf("@{\"Load Volt\" : %d, \"Load Curr\" : %d, \"Dist Volt\" : %d, \"Dist Curr\" : %d,}\n", load_v_rms, load_i_rms, dist_v_rms, dist_i_rms);
 	//UARTprintf("@{grid: \"load\" : %d}\n", (load_i_rms * load_v_rms)/1000);
 	//UARTprintf("@{grid: \"load\" : %d}\n", load_v_rms);
 	//UARTprintf("@{grid: \"load\" : %d, test %d}\n", load_v_rms, test);

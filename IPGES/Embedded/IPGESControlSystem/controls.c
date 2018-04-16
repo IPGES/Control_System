@@ -104,12 +104,13 @@ static void ControlsTask(void *pvParameters)
 			
 			//***********************************Capacitor bank controls*************************************************
 			// Double check variable types
-			
+			/*
 			int measured_load_voltage = get_dist_v_rms(); // un-hardcode, ask Jim for the voltage measurement, or just change the if statements below.
 			int target_voltage = 24 ; // distribution line Vin voltage setpoint
 			int tolerance = 1; // distribution line Vin voltage tolerance
 			int low_range = target_voltage-tolerance; 
 			int high_range = target_voltage+tolerance; 
+			*/
 			/*
 			if(measured_load_voltage<low_range){
 				GPIO_CAP1_set_high();
