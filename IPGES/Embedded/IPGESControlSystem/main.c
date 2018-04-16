@@ -147,7 +147,8 @@ void Producer() {
 //
 //*****************************************************************************
 int main(void)
-{
+{		int vin_read=0;
+	
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ |
                        SYSCTL_OSC_MAIN); // Set the clocking to run at 50 MHz from the PLL. I think this is actually 80 MHz
 	
@@ -200,7 +201,8 @@ int main(void)
     } 
 		
     vTaskStartScheduler(); // Start the scheduler.  This should not return.
-
+		
+	
     while(1) {
         // In case the scheduler returns for some reason, print an error and loop
         // forever.

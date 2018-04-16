@@ -136,7 +136,7 @@ static void ADCTask(void *pvParameters)
 					scb_mean_load_irms = avg_sum_load_irms/ARRAY_SIZE;
 					scb_mean_dist_vrms = avg_sum_dist_vrms/ARRAY_SIZE;
 					scb_mean_dist_irms = avg_sum_dist_irms/ARRAY_SIZE; 
-					//UARTprintf("AVG: %d\n",scb_mean_dist_irms);
+					//UARTprintf("AVG: %d\n",scb_mean_load_vrms);
           for(int i = 0; i < ARRAY_SIZE; i++) {
 						//PE0
 						shifted_adc.PE0 = adcRawSS0Input[i].PE0 - scb_mean_load_vrms; //5.4 -> 1.63 mean 
@@ -151,7 +151,7 @@ static void ADCTask(void *pvParameters)
 						shifted_adc.PE3 = adcRawSS0Input[i].PE3 - scb_mean_dist_irms;
 						sum_dist_irms += shifted_adc.PE3 * shifted_adc.PE3; 
 						
-						//UARTprintf("%d,", (adcRawSS0Input[i].PE2* 3300) / 4095);
+						//UARTprintf("%d,", (adcRawSS0Input[i].PE0* 3300) / 4095);
 						//UARTprintf("%d,", adcRawSS0Input[i].PE0);
 						//UARTprintf("%d,",shifted_adc.PE0);
           }
@@ -173,7 +173,7 @@ static void ADCTask(void *pvParameters)
 					load_v_rms = undo_signal_conditioning_load_vrms(result_load_vrms);
 			 		load_i_rms = undo_signal_conditioning_load_irms(result_load_irms);
 					dist_v_rms = undo_signal_conditioning_dist_vrms(result_dist_vrms);
-					dist_i_rms = undo_signal_conditioning_load_irms(result_dist_irms);
+					dist_i_rms = undo_signal_conditioning_dist_irms(result_dist_irms);
 					
 					//UARTprintf("Volt: %d\n", undo_signal_conditioning_load_vrms(23));
 					//UARTprintf("Curr: %d\n", result_dist_irms);
@@ -218,6 +218,7 @@ int undo_signal_conditioning_dist_irms(int input) {
 	int real_value = scaling(input, boundaries, scale);
 	return real_value;   
 }
+
 
 int get_load_v_rms() {
 	return load_v_rms;
