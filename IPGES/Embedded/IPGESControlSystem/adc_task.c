@@ -75,8 +75,6 @@ int undo_signal_conditioning_dist_vrms(int input);
 int undo_signal_conditioning_dist_irms(int input);
 int scaling(int input, int *boundary, int *scale);
 
-#define scb_factor 11
-#define transformer_factor 5
 
 #define SAMPLES_PER_SEC 1000 //sampling too many times causes contention between the two sequencers
 #define ARRAY_SIZE 250 //250
@@ -130,7 +128,7 @@ static void ADCTask(void *pvParameters)
 						avg_sum_load_irms += adcRawSS0Input[i].PE1;
 						avg_sum_dist_vrms += adcRawSS0Input[i].PE2;
 						avg_sum_dist_irms += adcRawSS0Input[i].PE3;
-					//UARTprintf("%d,",adcRawSS0Input[i].PE0);
+					//UARTprintf("%d,",(adcRawSS0Input[i].PE0 * 3300) / 4095);
 					}
 					scb_mean_load_vrms = avg_sum_load_vrms/ARRAY_SIZE;
 					scb_mean_load_irms = avg_sum_load_irms/ARRAY_SIZE;
@@ -185,7 +183,7 @@ static void ADCTask(void *pvParameters)
 					UARTprintf("Curr: %d\n", result_dist_irms);
 					UARTprintf("Volt: %d\n", result_dist_vrms);
 					UARTprintf("Curr: %d\n", result_dist_irms);	
-					*/					
+						*/				
 					
         }
     }
